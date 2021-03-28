@@ -1,0 +1,38 @@
+---
+title: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning R
+
+These are my favorite resources for learning R. I *highly* recommend you learn the `tidyverse` if you plan on data wrangling. It is the most intuitive and clean syntax I have seen for cleaning/analyzing data.
+
+-   [R for Data Science](https://r4ds.had.co.nz/) : Hadley Wickham & Garret Grolemund's invaluable text. This is the best place to learn R. I recently discovered that reading chapters of material I *thought* I had an exceptional grasp on provided me with workflow and best practice tips. I cannot recommend this book enough. Read it cover to cover and bookmark it.
+
+-   [Grant McDermott's Data Science for Economists Lecture Notes](https://github.com/uo-ec607/lectures): These are quite simply the best online notes on data science for economists I have ever seen. Unsure what an API is? Wondering how to [correct your standard errors](https://grantmcdermott.com/better-way-adjust-SEs/)? Grant's lecture notes (and blog) have it all, with code, free to access.
+
+-   [David Robinson's YouTube Channel](https://www.youtube.com/channel/UCeiiqmVK07qhY-wvg3IZiZQ): Every week, David Robinson (author of the `broom` and `tidytext` packages) takes a new data set, and livestreams himself analyzing it. This is an exceptionally good resource for getting comfortable with the `ggplot2` syntax and learning what graphs work with which data. Plus, it's entertaining!
+
+-   [R for STATA Users](https://www.matthieugomez.com/statar/manipulate-data.html): This provides translations of common code from R to STATA and vice-versa.
+
+
+
+# Tools for Research
+
+### Zotero
+
+This is my favorite way of tracking journal articles for literature reviews. It is completely free, and has an incredible Chrome extension for quickly saving journal articles/web pages into a folder. As a bonus: it can easily create bibtex files with a click of the button and it integrates with RStudio's new Rmarkdown interactive editor. [Learn more here.](https://www.zotero.org/)
+
+### Freedom of Information Act
+
+The Freedom of Information Act is an excellent resource for getting data. It states that federal institutions are required to give you documents that exist (with some exceptions) within a certain amount of time. I have frequently used this method to receive police department data. Here are some of my favorite resources to get you started with using this tool:
+
+-   [Muckrock](https://www.muckrock.com/): a non-profit news site that provides a repository of thousands of pages of FOIA'd information. See what documents/data researchers and journalists are currently seeking.
+
+-   [National Freedom of Information Coalition Sample FOIA Letters](https://www.nfoic.org/state-sample-foia-request-letters/): templates for FOIA requests. Since FOIA laws vary by state, this is a particularly useful resource when your analysis requires you to gather data from multiple states.
+
+# 
