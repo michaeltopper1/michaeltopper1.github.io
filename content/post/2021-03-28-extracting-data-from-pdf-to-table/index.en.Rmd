@@ -1,0 +1,192 @@
+---
+title: Extracting Data from PDFs into Tibbles
+author: R package build
+date: '2021-03-28'
+slug: extracting-data-from-pdf-to-table
+categories:
+  - R
+  - datascience
+tags: []
+subtitle: ''
+summary: 'Who needs UpWork when you can do it yourself faster?'
+authors: []
+lastmod: '2021-03-28T16:21:14-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+Suppose you want to do research, but instead of finding a data source that has already been beaten to death by a band of graduate students and assistant professors, you decide to use the Freedom of Information Act to get information that, presumably, no one else has. Terrific right? Well, as the irritating sleazebag economist would say, "there's no free lunch". And they are correct; there is always a cost to getting new, exciting data. In my particular case, this was learning how to extract police data from PDF documents...a lot of PDF documents. After extracting data from over 50k PDFs, I learned a few tips and tricks that can make this process much easier. In most tutorials I used (see [here](https://crimebythenumbers.com/scrape-table.html) and [here](https://medium.com/@ketanrd.009/how-to-extract-pdf-tables-in-r-e994c0fe4e28)), the authors did not focus enough (or at all) on what I dubbed "unholy PDFs" (e.g. PDFs that do not have information in a table-format). There are plenty of great, easy ways to get information from PDFs that have a nice table-structure into tibbles such as the `tabulizer` package, but today, I'm going to focus on these "unholy PDFs" where you cannot simply use a package's function to get exactly what you want. 
+
+For reference, [here](crime_log.pdf) is an example of the PDF we will be extracting data from: it is a page from a police crime log.
+
+The goal in my research is to connect crimes to the date occurred, however, if I can get more information (such as location) this is even better. So for this post, I'm going to extract the following information from this PDF: Date Reported, Location, Event#, Incident, and Disposition. However, I'll only go into depth on how to extract the first three categories, and "the remainder is left to the reader as an exercise". 
+
+## Getting Started
+
+First, we need to load the necessary packages. In this case, I will be utilizing the following packages: `tidyverse` and `pdftools`. Let's go ahead and load the packages in (and install if needed). Note that loading the `tidyverse` package loads the `stringr`, `dplyr`, and `ggplot2` packages. Hence, we need to load in the `tidyverse` and `pdftools` package with the `library` function.
+
+```{r, message = F}
+library(tidyverse)
+library(pdftools)
+```
+
+## Overview 
+
+I'm going to lay out the steps we are about to take so there is a clear path to what we plan on accomplishing:
+
+1. Load in the PDF (using `pdftools::pdf_text`) into a list.
+2. Split the PDF into lines and unlist (using `stringr::str_split` and `base::unlist`).
+3. Find patterns and break the text into smaller objects that feature the characteristics we want.
+4. Convert these smaller objects into tibbles.
+5. Append these tibbles together into a main tibble.
+
+Let's go!
+
+## Step 1: Loading
+We're going to load in the data using `pdftools::pdf_text`. We'll save this object with the name `pdf_data`. 
+```{r}
+## load in the data
+pdf_data <- pdf_text("crime_log.pdf")
+
+## get a glimpse of your data
+pdf_data %>% 
+  head()
+```
+
+Looks awful right? Take a second to look over the text and compare it to the raw PDF. The text is the same, but the formatting is ALL WRONG. Essentially, we have imported our data in as one big element in a vector...not so desirable.  However, pay close attention to the `\n`'s that occur. These `\n` are special text characters that tell the PDF processor "new-line". So take another look at the data and you can start to see that our text just needs to be split by these new-line characters to get a format we want. 
+
+## Step 2: Split the PDF lines
+I am now going to use the function `stringr::str_split` to split the text into new lines with our "splitter" being the `\n` character.
+
+```{r}
+## splitting the data by the newline character
+pdf_data <- pdf_data %>% 
+  str_split('\n')
+```
+
+```{r}
+## taking a look at the output - notice you can scroll right!
+pdf_data %>% 
+  head()
+```
+
+Now this looks much better! Our new `pdf_data` looks very similar to our raw PDF. However, notice in your environment that this is `pdf_data` is a list featuring 1 list. A list of lists is going to make our life harder in this case, so I  `unlist()`.
+
+```{r}
+## unlisting the data
+pdf_data <- pdf_data %>% unlist()
+
+pdf_data %>% 
+  head(10)
+```
+
+## Step 3: Look for Patterns
+
+Note that the information we want all starts on new lines. For example, Date Reported, Location, and Event # all start on a newline that begins with "Date Reported:", Incident always starts on a new line with "Incident" etc. We are going to take advantage of this fact. For demonstration purposes, I will execute my code first, and then explain after:
+```{r}
+## converting all the data to lowercase
+pdf_data <- pdf_data %>% str_to_lower() %>% str_trim()
+
+## extracting data into new object that begin with date_reported
+date_reported_lines <- pdf_data %>% str_detect("^date reported") %>% which 
+
+```
+
+**What happened:** the first line of code converts all of the data into lower case (I do this to minimize common document errors such as forgetting to capitalize an entry), and the second line of code finds all lines that starts with the phrase "date reported" and puts them into a new object. Notice that "^date_reported" is a regular expression with the anchor "^" which tells R to match on "date reported" only at the very beginning of the line. `which` tells R to extract the elements that evaluated to `TRUE` and report the corresponding indices of the list. So in our example, lines 5, 9, 13, 17, 21, ..., 45 all started with expression "date reported". This is convenient because we can now tell R to just "show us these indices" with the next step:
+
+```{r}
+## showing the first five lines of all lines in pdf_data that start with "date reported"
+pdf_data[date_reported_lines] %>%  head(5)
+```
+
+
+
+## Step 4: Put this data into a tibble
+
+Next we are going to use the `tibble:as_tibble` function to convert this list into a tibble:
+
+```{r}
+## Observe what the as_tibble() function output does
+pdf_data[date_reported_lines] %>% 
+  as_tibble() %>% 
+  head(5)
+```
+
+Notice how the `tibble:as_tibble` function puts all our information into a tibble with only one column named `value`. Hence, we're going to `dplyr::extract` from the `value` column to get our desired information. I'm going to start with the date reported so we can get a general feel. **Note**: I am going to set `remove = F` for the first `extract` of date reported merely for demonstration purposes. I will not do this in the ones that follow.
+
+```{r}
+date_reported <- pdf_data[date_reported_lines] %>% 
+  as_tibble() %>% 
+  extract(value, into = "date_reported", "(\\d{1,2}/\\d{1,2}/\\d{2})", remove = F)
+
+date_reported %>% 
+  head()
+```
+
+Now, review [R for Data Science Chapter 14.3](https://r4ds.had.co.nz/strings.html#matching-patterns-with-regular-expressions) on regular expressions (because no one remembers these) and I'll give you the rub on the `"(\\d{1,2}/\\d{1,2}/\\d{2})"` expression. This says to match any digit 1 to 2 times, followed by a forward slash, followed by any digit 1 to two times, followed by a forward slash, followed by exactly 2 digits. Recall that the parenthesis in the `extract` function tell R that whatever is inside of those parenthesis is what you want to extract (hence, you can ignore them in your interpretation). This is the format that our date reported is in.
+
+I can similarly do this with location:
+```{r}
+## saving a tibble named location that contains our location data
+location <- pdf_data[date_reported_lines] %>% 
+  as_tibble() %>% 
+  extract(value, into = "location", ".{1,}location\\s:\\s(.{1,})event", remove = T)  
+
+location %>% 
+  head()
+```
+
+However, here regular expression reads `".{1,}location\\s:\\s(.{1,})event"`. In plain English, this is telling R to match on any character one or more number of times, followed by the word location, followed by a blank space, a colon, and another blank space, and then `extract` any number of characters that occurs *before* the word event shows up. Yikes.
+
+And with event number:
+```{r}
+## saving our event number data into a tibble
+event_number <- pdf_data[date_reported_lines] %>% 
+  as_tibble() %>% 
+  extract(value, into = "event_number", ".{1,}event\\s#:\\s(.{1,})", remove = T)
+
+event_number %>% 
+  head()
+```
+
+The regular expression here is similar to the one above, although a little more simple: match on any character one or more times, followed by the word event, followed by a whitespace, followed by a hash-tag, followed by a colon, followed by a whitespace, and then `extract` one or more characters that follow. 
+
+
+## Step 5: Appending
+
+Now, I will save each of these as their own tibble, and bind them all together using `dplyr::bind_cols`.
+
+```{r}
+## binding together the tibbles that contain all of our information
+crime_log <- bind_cols(date_reported, location, event_number) %>% 
+  select(-value) ## getting rid of the value column we saved in the first instance
+
+crime_log
+```
+
+Done! We managed to take this crime log and extract the date reported, location, and event number from the PDF. Notice that you can follow a similar pattern for the others columns of interest.
+
+## Summary
+
+We managed to take a raw PDF file and convert it to a tidy tibble just by using string manipulations and regular expressions. If you are comfortable with the `dplyr::extract` function and regular expressions, you could actually do this in even fewer lines. Here is what my code might look like if I was doing this in my own .R file:
+
+```{r}
+## load in the data
+pdf_data <- pdf_text("crime_log.pdf") %>% str_split('\n') %>% unlist() %>% str_to_lower()
+
+## extract the indices of interest
+date_reported_lines <- pdf_data %>% str_detect("^date reported")  %>% which 
+
+## put into a tibble
+crime_log <- pdf_data[date_reported_lines] %>% 
+  as_tibble() %>% 
+  extract(value, into = c("date_reported", "location", "event_number"),
+          regex = ".{1,}(\\d{1,2}/\\d{1,2}/\\d{2}).{1,}location\\s:\\s(.{1,})event\\s#:\\s(.{1,})")
+```
+

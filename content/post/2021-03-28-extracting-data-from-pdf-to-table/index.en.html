@@ -1,0 +1,262 @@
+---
+title: Extracting Data from PDFs into Tibbles
+author: R package build
+date: '2021-03-28'
+slug: extracting-data-from-pdf-to-table
+categories:
+  - R
+  - datascience
+tags: []
+subtitle: ''
+summary: 'Who needs UpWork when you can do it yourself faster?'
+authors: []
+lastmod: '2021-03-28T16:21:14-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Suppose you want to do research, but instead of finding a data source that has already been beaten to death by a band of graduate students and assistant professors, you decide to use the Freedom of Information Act to get information that, presumably, no one else has. Terrific right? Well, as the irritating sleazebag economist would say, “there’s no free lunch”. And they are correct; there is always a cost to getting new, exciting data. In my particular case, this was learning how to extract police data from PDF documents…a lot of PDF documents. After extracting data from over 50k PDFs, I learned a few tips and tricks that can make this process much easier. In most tutorials I used (see <a href="https://crimebythenumbers.com/scrape-table.html">here</a> and <a href="https://medium.com/@ketanrd.009/how-to-extract-pdf-tables-in-r-e994c0fe4e28">here</a>), the authors did not focus enough (or at all) on what I dubbed “unholy PDFs” (e.g. PDFs that do not have information in a table-format). There are plenty of great, easy ways to get information from PDFs that have a nice table-structure into tibbles such as the <code>tabulizer</code> package, but today, I’m going to focus on these “unholy PDFs” where you cannot simply use a package’s function to get exactly what you want.</p>
+<p>For reference, <a href="crime_log.pdf">here</a> is an example of the PDF we will be extracting data from: it is a page from a police crime log.</p>
+<p>The goal in my research is to connect crimes to the date occurred, however, if I can get more information (such as location) this is even better. So for this post, I’m going to extract the following information from this PDF: Date Reported, Location, Event#, Incident, and Disposition. However, I’ll only go into depth on how to extract the first three categories, and “the remainder is left to the reader as an exercise”.</p>
+<div id="getting-started" class="section level2">
+<h2>Getting Started</h2>
+<p>First, we need to load the necessary packages. In this case, I will be utilizing the following packages: <code>tidyverse</code> and <code>pdftools</code>. Let’s go ahead and load the packages in (and install if needed). Note that loading the <code>tidyverse</code> package loads the <code>stringr</code>, <code>dplyr</code>, and <code>ggplot2</code> packages. Hence, we need to load in the <code>tidyverse</code> and <code>pdftools</code> package with the <code>library</code> function.</p>
+<pre class="r"><code>library(tidyverse)
+library(pdftools)</code></pre>
+</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I’m going to lay out the steps we are about to take so there is a clear path to what we plan on accomplishing:</p>
+<ol style="list-style-type: decimal">
+<li>Load in the PDF (using <code>pdftools::pdf_text</code>) into a list.</li>
+<li>Split the PDF into lines and unlist (using <code>stringr::str_split</code> and <code>base::unlist</code>).</li>
+<li>Find patterns and break the text into smaller objects that feature the characteristics we want.</li>
+<li>Convert these smaller objects into tibbles.</li>
+<li>Append these tibbles together into a main tibble.</li>
+</ol>
+<p>Let’s go!</p>
+</div>
+<div id="step-1-loading" class="section level2">
+<h2>Step 1: Loading</h2>
+<p>We’re going to load in the data using <code>pdftools::pdf_text</code>. We’ll save this object with the name <code>pdf_data</code>.</p>
+<pre class="r"><code>## load in the data
+pdf_data &lt;- pdf_text(&quot;crime_log.pdf&quot;)
+
+## get a glimpse of your data
+pdf_data %&gt;% 
+  head()</code></pre>
+<pre><code>## [1] &quot;                                              Indiana University, Bloomington\n                                                     Police Department\n                                           Student Right To Know CAD Daily Log\n                                           From Jan 20, 2014 to Jan 20, 2014.\nDate Reported: 01/20/14 - MON at 12:22      Location : EIGENMANN HALL                         Event #: 14-01-20-001434\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 17:03      Location : ALL OTHER ROADWAYS/INTERS              Event #: 14-01-20-001446\nDate and Time Occurred From - Occurred To 01/20/14 - MON at 17:02 - 01/20/14 - MON at 17:03\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #: 140154\nDisposition: CLOSED BY ARREST\nDate Reported: 01/20/14 - MON at 19:30      Location : EIGENMANN HALL                         Event #: 14-01-20-001464\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 20:22      Location : EIGENMANN HALL                         Event #: 14-01-20-001466\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 20:45      Location : FOSTER HARPER HALL                     Event #: 14-01-20-001468\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 21:38      Location : ALL OTHER NON-UNIVERSITY               Event #: 14-01-20-001476\nDate and Time Occurred From - Occurred To\nIncident : ALL OTHER OFFENSES - HARASSMENT/INTIMIDATION                                      Report #:\nDisposition: NO CASE REPORT\nDate Reported: 01/20/14 - MON at 21:53      Location : ROSE AVE RESIDENCE HALL                Event #: 14-01-20-001479\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 22:30      Location : COLLINS COMMON AREA                    Event #: 14-01-20-001486\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 23:02      Location : FOREST QUAD                            Event #: 14-01-20-001487\nDate and Time Occurred From - Occurred To 01/20/14 - MON at 22:45 - 01/20/14 - MON at 23:02\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #: 140157\nDisposition: CLOSED NO ARREST.\nDate Reported: 01/20/14 - MON at 23:07      Location : FOSTER JENKINSON HALL                  Event #: 14-01-20-001491\nDate and Time Occurred From - Occurred To\nIncident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:\nDisposition: FAILED TO LOCATE\nDate Reported: 01/20/14 - MON at 23:35      Location : ALL OTHER OPEN AREAS                   Event #: 14-01-20-001494\nDate and Time Occurred From - Occurred To 01/20/14 - MON at 23:35 - 01/20/14 - MON at 23:41\nIncident : ASSAULT - OTHER ASSAULTS - SIMPLE, NOT AGGRAVATED                                 Report #: 140159\nDisposition: CLOSED BY ARREST.\n                  11 Incidents Listed.\n                                                             Print Date and Time 1/21/2014  12:23:52PM     at Page No. 1\n&quot;</code></pre>
+<p>Looks awful right? Take a second to look over the text and compare it to the raw PDF. The text is the same, but the formatting is ALL WRONG. Essentially, we have imported our data in as one big element in a vector…not so desirable. However, pay close attention to the <code>\n</code>’s that occur. These <code>\n</code> are special text characters that tell the PDF processor “new-line”. So take another look at the data and you can start to see that our text just needs to be split by these new-line characters to get a format we want.</p>
+</div>
+<div id="step-2-split-the-pdf-lines" class="section level2">
+<h2>Step 2: Split the PDF lines</h2>
+<p>I am now going to use the function <code>stringr::str_split</code> to split the text into new lines with our “splitter” being the <code>\n</code> character.</p>
+<pre class="r"><code>## splitting the data by the newline character
+pdf_data &lt;- pdf_data %&gt;% 
+  str_split(&#39;\n&#39;)</code></pre>
+<pre class="r"><code>## taking a look at the output - notice you can scroll right!
+pdf_data %&gt;% 
+  head()</code></pre>
+<pre><code>## [[1]]
+##  [1] &quot;                                              Indiana University, Bloomington&quot;                                           
+##  [2] &quot;                                                     Police Department&quot;                                                  
+##  [3] &quot;                                           Student Right To Know CAD Daily Log&quot;                                          
+##  [4] &quot;                                           From Jan 20, 2014 to Jan 20, 2014.&quot;                                           
+##  [5] &quot;Date Reported: 01/20/14 - MON at 12:22      Location : EIGENMANN HALL                         Event #: 14-01-20-001434&quot;  
+##  [6] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+##  [7] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+##  [8] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+##  [9] &quot;Date Reported: 01/20/14 - MON at 17:03      Location : ALL OTHER ROADWAYS/INTERS              Event #: 14-01-20-001446&quot;  
+## [10] &quot;Date and Time Occurred From - Occurred To 01/20/14 - MON at 17:02 - 01/20/14 - MON at 17:03&quot;                             
+## [11] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #: 140154&quot;           
+## [12] &quot;Disposition: CLOSED BY ARREST&quot;                                                                                           
+## [13] &quot;Date Reported: 01/20/14 - MON at 19:30      Location : EIGENMANN HALL                         Event #: 14-01-20-001464&quot;  
+## [14] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [15] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [16] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [17] &quot;Date Reported: 01/20/14 - MON at 20:22      Location : EIGENMANN HALL                         Event #: 14-01-20-001466&quot;  
+## [18] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [19] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [20] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [21] &quot;Date Reported: 01/20/14 - MON at 20:45      Location : FOSTER HARPER HALL                     Event #: 14-01-20-001468&quot;  
+## [22] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [23] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [24] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [25] &quot;Date Reported: 01/20/14 - MON at 21:38      Location : ALL OTHER NON-UNIVERSITY               Event #: 14-01-20-001476&quot;  
+## [26] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [27] &quot;Incident : ALL OTHER OFFENSES - HARASSMENT/INTIMIDATION                                      Report #:&quot;                  
+## [28] &quot;Disposition: NO CASE REPORT&quot;                                                                                             
+## [29] &quot;Date Reported: 01/20/14 - MON at 21:53      Location : ROSE AVE RESIDENCE HALL                Event #: 14-01-20-001479&quot;  
+## [30] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [31] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [32] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [33] &quot;Date Reported: 01/20/14 - MON at 22:30      Location : COLLINS COMMON AREA                    Event #: 14-01-20-001486&quot;  
+## [34] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [35] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [36] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [37] &quot;Date Reported: 01/20/14 - MON at 23:02      Location : FOREST QUAD                            Event #: 14-01-20-001487&quot;  
+## [38] &quot;Date and Time Occurred From - Occurred To 01/20/14 - MON at 22:45 - 01/20/14 - MON at 23:02&quot;                             
+## [39] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #: 140157&quot;           
+## [40] &quot;Disposition: CLOSED NO ARREST.&quot;                                                                                          
+## [41] &quot;Date Reported: 01/20/14 - MON at 23:07      Location : FOSTER JENKINSON HALL                  Event #: 14-01-20-001491&quot;  
+## [42] &quot;Date and Time Occurred From - Occurred To&quot;                                                                               
+## [43] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                  
+## [44] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                           
+## [45] &quot;Date Reported: 01/20/14 - MON at 23:35      Location : ALL OTHER OPEN AREAS                   Event #: 14-01-20-001494&quot;  
+## [46] &quot;Date and Time Occurred From - Occurred To 01/20/14 - MON at 23:35 - 01/20/14 - MON at 23:41&quot;                             
+## [47] &quot;Incident : ASSAULT - OTHER ASSAULTS - SIMPLE, NOT AGGRAVATED                                 Report #: 140159&quot;           
+## [48] &quot;Disposition: CLOSED BY ARREST.&quot;                                                                                          
+## [49] &quot;                  11 Incidents Listed.&quot;                                                                                  
+## [50] &quot;                                                             Print Date and Time 1/21/2014  12:23:52PM     at Page No. 1&quot;
+## [51] &quot;&quot;</code></pre>
+<p>Now this looks much better! Our new <code>pdf_data</code> looks very similar to our raw PDF. However, notice in your environment that this is <code>pdf_data</code> is a list featuring 1 list. A list of lists is going to make our life harder in this case, so I <code>unlist()</code>.</p>
+<pre class="r"><code>## unlisting the data
+pdf_data &lt;- pdf_data %&gt;% unlist()
+
+pdf_data %&gt;% 
+  head(10)</code></pre>
+<pre><code>##  [1] &quot;                                              Indiana University, Bloomington&quot;                                         
+##  [2] &quot;                                                     Police Department&quot;                                                
+##  [3] &quot;                                           Student Right To Know CAD Daily Log&quot;                                        
+##  [4] &quot;                                           From Jan 20, 2014 to Jan 20, 2014.&quot;                                         
+##  [5] &quot;Date Reported: 01/20/14 - MON at 12:22      Location : EIGENMANN HALL                         Event #: 14-01-20-001434&quot;
+##  [6] &quot;Date and Time Occurred From - Occurred To&quot;                                                                             
+##  [7] &quot;Incident : NARCOTIC/DRUG LAWS - POSSESSION - MARIJUANA                                       Report #:&quot;                
+##  [8] &quot;Disposition: FAILED TO LOCATE&quot;                                                                                         
+##  [9] &quot;Date Reported: 01/20/14 - MON at 17:03      Location : ALL OTHER ROADWAYS/INTERS              Event #: 14-01-20-001446&quot;
+## [10] &quot;Date and Time Occurred From - Occurred To 01/20/14 - MON at 17:02 - 01/20/14 - MON at 17:03&quot;</code></pre>
+</div>
+<div id="step-3-look-for-patterns" class="section level2">
+<h2>Step 3: Look for Patterns</h2>
+<p>Note that the information we want all starts on new lines. For example, Date Reported, Location, and Event # all start on a newline that begins with “Date Reported:”, Incident always starts on a new line with “Incident” etc. We are going to take advantage of this fact. For demonstration purposes, I will execute my code first, and then explain after:</p>
+<pre class="r"><code>## converting all the data to lowercase
+pdf_data &lt;- pdf_data %&gt;% str_to_lower() %&gt;% str_trim()
+
+## extracting data into new object that begin with date_reported
+date_reported_lines &lt;- pdf_data %&gt;% str_detect(&quot;^date reported&quot;) %&gt;% which </code></pre>
+<p><strong>What happened:</strong> the first line of code converts all of the data into lower case (I do this to minimize common document errors such as forgetting to capitalize an entry), and the second line of code finds all lines that starts with the phrase “date reported” and puts them into a new object. Notice that “^date_reported” is a regular expression with the anchor “^” which tells R to match on “date reported” only at the very beginning of the line. <code>which</code> tells R to extract the elements that evaluated to <code>TRUE</code> and report the corresponding indices of the list. So in our example, lines 5, 9, 13, 17, 21, …, 45 all started with expression “date reported”. This is convenient because we can now tell R to just “show us these indices” with the next step:</p>
+<pre class="r"><code>## showing the first five lines of all lines in pdf_data that start with &quot;date reported&quot;
+pdf_data[date_reported_lines] %&gt;%  head(5)</code></pre>
+<pre><code>## [1] &quot;date reported: 01/20/14 - mon at 12:22      location : eigenmann hall                         event #: 14-01-20-001434&quot;
+## [2] &quot;date reported: 01/20/14 - mon at 17:03      location : all other roadways/inters              event #: 14-01-20-001446&quot;
+## [3] &quot;date reported: 01/20/14 - mon at 19:30      location : eigenmann hall                         event #: 14-01-20-001464&quot;
+## [4] &quot;date reported: 01/20/14 - mon at 20:22      location : eigenmann hall                         event #: 14-01-20-001466&quot;
+## [5] &quot;date reported: 01/20/14 - mon at 20:45      location : foster harper hall                     event #: 14-01-20-001468&quot;</code></pre>
+</div>
+<div id="step-4-put-this-data-into-a-tibble" class="section level2">
+<h2>Step 4: Put this data into a tibble</h2>
+<p>Next we are going to use the <code>tibble:as_tibble</code> function to convert this list into a tibble:</p>
+<pre class="r"><code>## Observe what the as_tibble() function output does
+pdf_data[date_reported_lines] %&gt;% 
+  as_tibble() %&gt;% 
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 1
+##   value                                                                         
+##   &lt;chr&gt;                                                                         
+## 1 date reported: 01/20/14 - mon at 12:22      location : eigenmann hall        …
+## 2 date reported: 01/20/14 - mon at 17:03      location : all other roadways/int…
+## 3 date reported: 01/20/14 - mon at 19:30      location : eigenmann hall        …
+## 4 date reported: 01/20/14 - mon at 20:22      location : eigenmann hall        …
+## 5 date reported: 01/20/14 - mon at 20:45      location : foster harper hall    …</code></pre>
+<p>Notice how the <code>tibble:as_tibble</code> function puts all our information into a tibble with only one column named <code>value</code>. Hence, we’re going to <code>dplyr::extract</code> from the <code>value</code> column to get our desired information. I’m going to start with the date reported so we can get a general feel. <strong>Note</strong>: I am going to set <code>remove = F</code> for the first <code>extract</code> of date reported merely for demonstration purposes. I will not do this in the ones that follow.</p>
+<pre class="r"><code>date_reported &lt;- pdf_data[date_reported_lines] %&gt;% 
+  as_tibble() %&gt;% 
+  extract(value, into = &quot;date_reported&quot;, &quot;(\\d{1,2}/\\d{1,2}/\\d{2})&quot;, remove = F)
+
+date_reported %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   value                                                            date_reported
+##   &lt;chr&gt;                                                            &lt;chr&gt;        
+## 1 date reported: 01/20/14 - mon at 12:22      location : eigenman… 01/20/14     
+## 2 date reported: 01/20/14 - mon at 17:03      location : all othe… 01/20/14     
+## 3 date reported: 01/20/14 - mon at 19:30      location : eigenman… 01/20/14     
+## 4 date reported: 01/20/14 - mon at 20:22      location : eigenman… 01/20/14     
+## 5 date reported: 01/20/14 - mon at 20:45      location : foster h… 01/20/14     
+## 6 date reported: 01/20/14 - mon at 21:38      location : all othe… 01/20/14</code></pre>
+<p>Now, review <a href="https://r4ds.had.co.nz/strings.html#matching-patterns-with-regular-expressions">R for Data Science Chapter 14.3</a> on regular expressions (because no one remembers these) and I’ll give you the rub on the <code>"(\\d{1,2}/\\d{1,2}/\\d{2})"</code> expression. This says to match any digit 1 to 2 times, followed by a forward slash, followed by any digit 1 to two times, followed by a forward slash, followed by exactly 2 digits. Recall that the parenthesis in the <code>extract</code> function tell R that whatever is inside of those parenthesis is what you want to extract (hence, you can ignore them in your interpretation). This is the format that our date reported is in.</p>
+<p>I can similarly do this with location:</p>
+<pre class="r"><code>## saving a tibble named location that contains our location data
+location &lt;- pdf_data[date_reported_lines] %&gt;% 
+  as_tibble() %&gt;% 
+  extract(value, into = &quot;location&quot;, &quot;.{1,}location\\s:\\s(.{1,})event&quot;, remove = T)  
+
+location %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 x 1
+##   location                                 
+##   &lt;chr&gt;                                    
+## 1 &quot;eigenmann hall                         &quot;
+## 2 &quot;all other roadways/inters              &quot;
+## 3 &quot;eigenmann hall                         &quot;
+## 4 &quot;eigenmann hall                         &quot;
+## 5 &quot;foster harper hall                     &quot;
+## 6 &quot;all other non-university               &quot;</code></pre>
+<p>However, here regular expression reads <code>".{1,}location\\s:\\s(.{1,})event"</code>. In plain English, this is telling R to match on any character one or more number of times, followed by the word location, followed by a blank space, a colon, and another blank space, and then <code>extract</code> any number of characters that occurs <em>before</em> the word event shows up. Yikes.</p>
+<p>And with event number:</p>
+<pre class="r"><code>## saving our event number data into a tibble
+event_number &lt;- pdf_data[date_reported_lines] %&gt;% 
+  as_tibble() %&gt;% 
+  extract(value, into = &quot;event_number&quot;, &quot;.{1,}event\\s#:\\s(.{1,})&quot;, remove = T)
+
+event_number %&gt;% 
+  head()</code></pre>
+<pre><code>## # A tibble: 6 x 1
+##   event_number   
+##   &lt;chr&gt;          
+## 1 14-01-20-001434
+## 2 14-01-20-001446
+## 3 14-01-20-001464
+## 4 14-01-20-001466
+## 5 14-01-20-001468
+## 6 14-01-20-001476</code></pre>
+<p>The regular expression here is similar to the one above, although a little more simple: match on any character one or more times, followed by the word event, followed by a whitespace, followed by a hash-tag, followed by a colon, followed by a whitespace, and then <code>extract</code> one or more characters that follow.</p>
+</div>
+<div id="step-5-appending" class="section level2">
+<h2>Step 5: Appending</h2>
+<p>Now, I will save each of these as their own tibble, and bind them all together using <code>dplyr::bind_cols</code>.</p>
+<pre class="r"><code>## binding together the tibbles that contain all of our information
+crime_log &lt;- bind_cols(date_reported, location, event_number) %&gt;% 
+  select(-value) ## getting rid of the value column we saved in the first instance
+
+crime_log</code></pre>
+<pre><code>## # A tibble: 11 x 3
+##    date_reported location                                  event_number   
+##    &lt;chr&gt;         &lt;chr&gt;                                     &lt;chr&gt;          
+##  1 01/20/14      &quot;eigenmann hall                         &quot; 14-01-20-001434
+##  2 01/20/14      &quot;all other roadways/inters              &quot; 14-01-20-001446
+##  3 01/20/14      &quot;eigenmann hall                         &quot; 14-01-20-001464
+##  4 01/20/14      &quot;eigenmann hall                         &quot; 14-01-20-001466
+##  5 01/20/14      &quot;foster harper hall                     &quot; 14-01-20-001468
+##  6 01/20/14      &quot;all other non-university               &quot; 14-01-20-001476
+##  7 01/20/14      &quot;rose ave residence hall                &quot; 14-01-20-001479
+##  8 01/20/14      &quot;collins common area                    &quot; 14-01-20-001486
+##  9 01/20/14      &quot;forest quad                            &quot; 14-01-20-001487
+## 10 01/20/14      &quot;foster jenkinson hall                  &quot; 14-01-20-001491
+## 11 01/20/14      &quot;all other open areas                   &quot; 14-01-20-001494</code></pre>
+<p>Done! We managed to take this crime log and extract the date reported, location, and event number from the PDF. Notice that you can follow a similar pattern for the others columns of interest.</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>We managed to take a raw PDF file and convert it to a tidy tibble just by using string manipulations and regular expressions. If you are comfortable with the <code>dplyr::extract</code> function and regular expressions, you could actually do this in even fewer lines. Here is what my code might look like if I was doing this in my own .R file:</p>
+<pre class="r"><code>## load in the data
+pdf_data &lt;- pdf_text(&quot;crime_log.pdf&quot;) %&gt;% str_split(&#39;\n&#39;) %&gt;% unlist() %&gt;% str_to_lower()
+
+## extract the indices of interest
+date_reported_lines &lt;- pdf_data %&gt;% str_detect(&quot;^date reported&quot;)  %&gt;% which 
+
+## put into a tibble
+crime_log &lt;- pdf_data[date_reported_lines] %&gt;% 
+  as_tibble() %&gt;% 
+  extract(value, into = c(&quot;date_reported&quot;, &quot;location&quot;, &quot;event_number&quot;),
+          regex = &quot;.{1,}(\\d{1,2}/\\d{1,2}/\\d{2}).{1,}location\\s:\\s(.{1,})event\\s#:\\s(.{1,})&quot;)</code></pre>
+</div>
