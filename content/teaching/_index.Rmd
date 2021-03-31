@@ -1,0 +1,21 @@
+---
+title: "Teaching"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructor of Record
+***
+* Economics 102 - Introductory Microeconomics *(San Diego State University)*
+  + See how students evaluated my course on [ratemyprofessors](https://www.ratemyprofessors.com/ShowRatings.jsp?tid=2280144).
+
+## Teaching Assistant
+***
+* Economics 145 - Data Wrangling in Economics *(University of California, Santa Barbara)*
+* Economics 140 - Introductory Econometrics *(University of California, Santa Barbara)*
+* Economics 1 - Introductory Microeconomics *(University of California, Santa Barbara)*
+* Economics 2 - Introductory Macroeconomics *(University of California, Santa Barbara)*
+* Econonmics 441 - Introduction to Econometrics *(San Diego State University)*

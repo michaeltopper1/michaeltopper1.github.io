@@ -5,7 +5,7 @@
 
 main:
   - name: Teaching
-    url: '#teaching' ## links to the content/home/cv.md file.
+    url: '/teaching/' ## links to the content/home/cv.md file.
     weight: 20
   - name: Blog
     url: '/post/' 
