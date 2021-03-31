@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "Resources"
 output: html_document
 ---
 
@@ -8,15 +8,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{css, echo = F}
-h1 {
-  text-align: center;
-  color: DarkRed;
-  font-size: 70px;
-}
-h2 {
-  text-align: center;
-  font-size: 50px;
-}
+# h1 {
+#   font-size: 70px;
+# }
+# h2 {
+#   text-align: center;
+#   font-size: 50px;
+# }
 ```
 
 ## Learning R
