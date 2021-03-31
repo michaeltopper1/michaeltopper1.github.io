@@ -40,7 +40,7 @@ These are my favorite resources for learning R. I *highly* recommend you learn t
 
 ### Zotero
 
-This is my favorite way of tracking journal articles for literature reviews. It is completely free, and has an incredible Chrome extension for quickly saving journal articles/web pages into a folder. As a bonus: it can easily create bibtex files with a click of the button and it integrates with RStudio's new Rmarkdown interactive editor. [Learn more here.](https://www.zotero.org/)
+This is, in my opinion, the best and most efficient method of tracking journal articles for literature reviews. It is completely free and has an incredible Chrome extension for quickly saving journal articles/web pages into a folder. As a bonus, it can easily create bibtex files with a click of the button and it integrates with RStudio's new Rmarkdown interactive editor. [Learn more here.](https://www.zotero.org/)
 
 ### Freedom of Information Act
 
