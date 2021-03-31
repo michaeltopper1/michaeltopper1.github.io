@@ -33,7 +33,7 @@ social:
   link: https://twitter.com/MichaelTopper15
 - icon: graduation-cap
   icon_pack: fas
-  link: https://scholar.google.co.uk/citations?user=sIwtMXoAAAAJ
+  link: 
 - icon: github
   icon_pack: fab
   link: https://github.com/michaeltopper1
