@@ -1,0 +1,149 @@
+---
+title: Looping Through Regressions (Without Looping)
+author: Michael Topper
+date: '2021-05-02'
+slug: looping-through-regressions
+categories:
+  - datascience
+  - R
+tags:
+  - regression
+  - loop
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-05-02T20:56:34-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+With the help of the `modelsummary` and `fixest` packages, R has once again shown that it is the superior language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you're interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it's inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of `modelsummary` (my favorite presentation package) and `fixest` (my favorite estimation package), "looping" through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I'll demonstrate how to "loop" through regressions without actually looping, and quickly output them to publication-ready tables.
+
+## Loading Packages/Data
+
+First, let's load in the required packages.
+```{r, message = F}
+library(tidyverse) ## for data wrangling
+library(fixest) ## for estimation
+library(modelsummary) ## for presentation
+library(titanic) ## to get a demonstration dataset
+```
+
+I am going to use a cross-sectional data set `titanic_train` from the `titanic` package. The `titanic_train` data set will be used as a demonstration of estimating many different regression specifications with different covariates, but note that you can also extrapolate this method to panel data sets with different fixed effects. I am going to change the `titanic_train` dataframe into a tibble before starting analysis. This is a completely optional step, as a tibble is simply a dataframe, but makes console output easier to view by only printing the first several rows/columns. In addition, I'll also use the `janitor::clean_names` function to change all the column names to snake_case.
+
+```{r}
+## loading in the trade data from the fixest package
+data(trade) 
+trade <- trade %>% as_tibble() %>% janitor::clean_names()
+
+## loading the titanic data set and changing it from dataframe to tibble for easier viewing
+titanic_train <- titanic_train %>% as_tibble() %>% janitor::clean_names()
+```
+
+## Models to Estimate (Covariates)
+
+Let's focus on the `titanic_train` data first. Suppose I want to estimate the following models:
+
+$$
+Survived_i = \beta_0 + \beta_1 Age_i + \epsilon_i
+$$
+$$
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \epsilon_i
+$$
+
+$$
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i + \epsilon_i
+$$
+$$
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
++ \beta_4FirstClass_i + \epsilon_i
+$$
+
+$$
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
++ \beta_4FirstClass_i + + \beta_5SecondClass_i + \epsilon_i
+$$
+
+In this case, I am estimating a linear probability model on the outcome $Survived_i$ (whether or not person $i$ survived the titanic). Note that $Female_i$ (a binary variable equal to 1 if passenger $i$ is a female), $FirstClass_i$, and $SecondClass_i$ are not columns in the data, so we're going to need to create these:
+
+```{r}
+## creating binary indicator variable for female, first class, and second class
+titanic_train <- titanic_train %>% 
+  mutate(female = ifelse(sex == "female", 1, 0),
+         first_class = ifelse(pclass==1, 1, 0),
+         second_class = ifelse(pclass == 2, 1, 0)) 
+```
+
+Now we're going to estimate all of these three models *with just regression call from `fixest::feols`*. Note that `fixest::feols` follows similar syntax as the `stats::lm` or the popular `lfe::felm` functions. You can read more on the `fixest::feols` syntax  [here](https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html). I'll first estimate the 3 equations by brute force, then show you how you can estimate each of these in one clean line of code.
+
+```{r}
+## long/inefficient way of estimating each of the three models
+
+## model 1
+survive_1 <- titanic_train %>% 
+  feols(survived ~ age, data = .)
+
+## model 2
+survive_2 <- titanic_train %>% 
+  feols(survived ~ age+ fare, data = .)
+
+## model 3
+survive_3 <- titanic_train %>% 
+  feols(survived ~ age + fare + female, data = .)
+
+## model 4
+survive_4 <- titanic_train %>% 
+  feols(survived ~ age + fare + female + first_class, data = .)
+
+## model 5
+survive_5 <- titanic_train %>% 
+  feols(survived ~ age + fare + female + first_class + second_class, data = .)
+
+```
+
+We could then put each of these regression objects into a list, and pass the list to `modelsummary::modelsummary` to get a publication-quality table. Note that `modelsummary::modelsummary` also features on-the-fly standard error adjustment with the `vcov` argument. Here, I decided to use heteroskedastic-robust standard errors, but there are other options too (see [here](https://vincentarelbundock.github.io/modelsummary/articles/modelsummary.html#vcov-1)), including a "stata" option if you really want to be sure your standard errors are equivalent to STATA's default robust option. I also decided to clean up the column names to look prettier, but you can read all about these in the `modelsummary` vignette.  
+
+```{r}
+survival_models <- list("Model 1" = survive_1,
+                        "Model 2" = survive_2,
+                        "Model 3" = survive_3,
+                        "Model 4" = survive_4,
+                        "Model 5" = survive_5)
+modelsummary(survival_models, stars = T, gof_omit = "A|B|L|R2 Ps",
+             vcov = "robust", coef_rename = c("age" = "Age",
+                                              "fare" = "Fare",
+                                              "female" = "Female",
+                                              "first_class" = "First Class",
+                                              "second_class" = "Second Class"))
+```
+
+Not bad right? WRONG! We can actually do this entire process MUCH quicker. The `fixest::feols` command can take vectors of columns specifying to "loop" through the combinations of the columns. This can be done with the `csw` (cumulative step-wise) function. The only thing you need to do is wrap the `csw` function around your covarites in a vector-like syntax. Observe:
+
+```{r}
+## estimating all three models with one line
+survival_models_fast <- titanic_train %>% 
+  feols(survived ~csw(age,fare, female, first_class, second_class), data = .)
+
+## printing table 
+modelsummary(survival_models_fast,
+             stars = T, gof_omit = "A|B|L|R2 Ps",vcov = "robust", coef_rename = c("age" = "Age","fare" = "Fare","female" = "Female"))
+```
+
+Looks great, except we have those annoying labels for each of our estimated equations. We can change these using the `base::names` function:
+
+```{r}
+## Changing model names
+names(survival_models_fast) <- c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5")
+
+## reprinting table
+modelsummary(survival_models_fast,
+             stars = T, gof_omit = "A|B|L|R2 Ps",vcov = "robust", coef_rename = c("age" = "Age","fare" = "Fare","female" = "Female"))
+```
+
+You can imagine that this is extremely helpful when adding in many combinations of columns. Oh, and you can also "loop" through left-hand-side variables as well. See the full `fixest` [vignette](https://cran.r-project.org/web/packages/fixest/vignettes/multiple_estimations.html) for all sorts of time saving functions.

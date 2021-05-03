@@ -1,0 +1,1087 @@
+---
+title: Looping Through Regressions (Without Looping)
+author: Michael Topper
+date: '2021-05-02'
+slug: looping-through-regressions
+categories:
+  - datascience
+  - R
+tags:
+  - regression
+  - loop
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-05-02T20:56:34-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+<script src="{{< blogdown/postref >}}index.en_files/kePrint/kePrint.js"></script>
+<link href="{{< blogdown/postref >}}index.en_files/lightable/lightable.css" rel="stylesheet" />
+
+
+<p>With the help of the <code>modelsummary</code> and <code>fixest</code> packages, R has once again shown that it is the superior language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you’re interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it’s inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of <code>modelsummary</code> (my favorite presentation package) and <code>fixest</code> (my favorite estimation package), “looping” through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I’ll demonstrate how to “loop” through regressions without actually looping, and quickly output them to publication-ready tables.</p>
+<div id="loading-packagesdata" class="section level2">
+<h2>Loading Packages/Data</h2>
+<p>First, let’s load in the required packages.</p>
+<pre class="r"><code>library(tidyverse) ## for data wrangling
+library(fixest) ## for estimation
+library(modelsummary) ## for presentation
+library(titanic) ## to get a demonstration dataset</code></pre>
+<p>I am going to use a cross-sectional data set <code>titanic_train</code> from the <code>titanic</code> package. The <code>titanic_train</code> data set will be used as a demonstration of estimating many different regression specifications with different covariates, but note that you can also extrapolate this method to panel data sets with different fixed effects. I am going to change the <code>titanic_train</code> dataframe into a tibble before starting analysis. This is a completely optional step, as a tibble is simply a dataframe, but makes console output easier to view by only printing the first several rows/columns. In addition, I’ll also use the <code>janitor::clean_names</code> function to change all the column names to snake_case.</p>
+<pre class="r"><code>## loading in the trade data from the fixest package
+data(trade) 
+trade &lt;- trade %&gt;% as_tibble() %&gt;% janitor::clean_names()
+
+## loading the titanic data set and changing it from dataframe to tibble for easier viewing
+titanic_train &lt;- titanic_train %&gt;% as_tibble() %&gt;% janitor::clean_names()</code></pre>
+</div>
+<div id="models-to-estimate-covariates" class="section level2">
+<h2>Models to Estimate (Covariates)</h2>
+<p>Let’s focus on the <code>titanic_train</code> data first. Suppose I want to estimate the following models:</p>
+<p><span class="math display">\[
+Survived_i = \beta_0 + \beta_1 Age_i + \epsilon_i
+\]</span>
+<span class="math display">\[
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \epsilon_i
+\]</span></p>
+<p><span class="math display">\[
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i + \epsilon_i
+\]</span>
+<span class="math display">\[
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
++ \beta_4FirstClass_i + \epsilon_i
+\]</span></p>
+<p><span class="math display">\[
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
++ \beta_4FirstClass_i + + \beta_5SecondClass_i + \epsilon_i
+\]</span></p>
+<p>In this case, I am estimating a linear probability model on the outcome <span class="math inline">\(Survived_i\)</span> (whether or not person <span class="math inline">\(i\)</span> survived the titanic). Note that <span class="math inline">\(Female_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is a female), <span class="math inline">\(FirstClass_i\)</span>, and <span class="math inline">\(SecondClass_i\)</span> are not columns in the data, so we’re going to need to create these:</p>
+<pre class="r"><code>## creating binary indicator variable for female, first class, and second class
+titanic_train &lt;- titanic_train %&gt;% 
+  mutate(female = ifelse(sex == &quot;female&quot;, 1, 0),
+         first_class = ifelse(pclass==1, 1, 0),
+         second_class = ifelse(pclass == 2, 1, 0)) </code></pre>
+<p>Now we’re going to estimate all of these three models <em>with just regression call from <code>fixest::feols</code></em>. Note that <code>fixest::feols</code> follows similar syntax as the <code>stats::lm</code> or the popular <code>lfe::felm</code> functions. You can read more on the <code>fixest::feols</code> syntax <a href="https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html">here</a>. I’ll first estimate the 3 equations by brute force, then show you how you can estimate each of these in one clean line of code.</p>
+<pre class="r"><code>## long/inefficient way of estimating each of the three models
+
+## model 1
+survive_1 &lt;- titanic_train %&gt;% 
+  feols(survived ~ age, data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre class="r"><code>## model 2
+survive_2 &lt;- titanic_train %&gt;% 
+  feols(survived ~ age+ fare, data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre class="r"><code>## model 3
+survive_3 &lt;- titanic_train %&gt;% 
+  feols(survived ~ age + fare + female, data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre class="r"><code>## model 4
+survive_4 &lt;- titanic_train %&gt;% 
+  feols(survived ~ age + fare + female + first_class, data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre class="r"><code>## model 5
+survive_5 &lt;- titanic_train %&gt;% 
+  feols(survived ~ age + fare + female + first_class + second_class, data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<p>We could then put each of these regression objects into a list, and pass the list to <code>modelsummary::modelsummary</code> to get a publication-quality table. Note that <code>modelsummary::modelsummary</code> also features on-the-fly standard error adjustment with the <code>vcov</code> argument. Here, I decided to use heteroskedastic-robust standard errors, but there are other options too (see <a href="https://vincentarelbundock.github.io/modelsummary/articles/modelsummary.html#vcov-1">here</a>), including a “stata” option if you really want to be sure your standard errors are equivalent to STATA’s default robust option. I also decided to clean up the column names to look prettier, but you can read all about these in the <code>modelsummary</code> vignette.</p>
+<pre class="r"><code>survival_models &lt;- list(&quot;Model 1&quot; = survive_1,
+                        &quot;Model 2&quot; = survive_2,
+                        &quot;Model 3&quot; = survive_3,
+                        &quot;Model 4&quot; = survive_4,
+                        &quot;Model 5&quot; = survive_5)
+modelsummary(survival_models, stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,
+             vcov = &quot;robust&quot;, coef_rename = c(&quot;age&quot; = &quot;Age&quot;,
+                                              &quot;fare&quot; = &quot;Fare&quot;,
+                                              &quot;female&quot; = &quot;Female&quot;,
+                                              &quot;first_class&quot; = &quot;First Class&quot;,
+                                              &quot;second_class&quot; = &quot;Second Class&quot;))</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+Model 1
+</th>
+<th style="text-align:center;">
+Model 2
+</th>
+<th style="text-align:center;">
+Model 3
+</th>
+<th style="text-align:center;">
+Model 4
+</th>
+<th style="text-align:center;">
+Model 5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:center;">
+0.484***
+</td>
+<td style="text-align:center;">
+0.421***
+</td>
+<td style="text-align:center;">
+0.209***
+</td>
+<td style="text-align:center;">
+0.266***
+</td>
+<td style="text-align:center;">
+0.238***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.042)
+</td>
+<td style="text-align:center;">
+(0.043)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+-0.003**
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.005***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fare
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.003***
+</td>
+<td style="text-align:center;">
+0.002***
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.511***
+</td>
+<td style="text-align:center;">
+0.501***
+</td>
+<td style="text-align:center;">
+0.479***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+First Class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.311***
+</td>
+<td style="text-align:center;">
+0.402***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.046)
+</td>
+<td style="text-align:center;">
+(0.051)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Second Class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.198***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.036)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Num.Obs.
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.322
+</td>
+<td style="text-align:center;">
+0.365
+</td>
+<td style="text-align:center;">
+0.390
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2 Within
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Std. Errors
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+</td>
+</tr>
+</tfoot>
+</table>
+<p>Not bad right? WRONG! We can actually do this entire process MUCH quicker. The <code>fixest::feols</code> command can take vectors of columns specifying to “loop” through the combinations of the columns. This can be done with the <code>csw</code> (cumulative step-wise) function. The only thing you need to do is wrap the <code>csw</code> function around your covarites in a vector-like syntax. Observe:</p>
+<pre class="r"><code>## estimating all three models with one line
+survival_models_fast &lt;- titanic_train %&gt;% 
+  feols(survived ~csw(age,fare, female, first_class, second_class), data = .)</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre class="r"><code>## printing table 
+modelsummary(survival_models_fast,
+             stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,vcov = &quot;robust&quot;, coef_rename = c(&quot;age&quot; = &quot;Age&quot;,&quot;fare&quot; = &quot;Fare&quot;,&quot;female&quot; = &quot;Female&quot;))</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+age
+</th>
+<th style="text-align:center;">
+age + fare
+</th>
+<th style="text-align:center;">
+age + fare + female
+</th>
+<th style="text-align:center;">
+age + fare + female + first_class
+</th>
+<th style="text-align:center;">
+age + fare + female + first_class + second_class
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:center;">
+0.484***
+</td>
+<td style="text-align:center;">
+0.421***
+</td>
+<td style="text-align:center;">
+0.209***
+</td>
+<td style="text-align:center;">
+0.266***
+</td>
+<td style="text-align:center;">
+0.238***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.042)
+</td>
+<td style="text-align:center;">
+(0.043)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+-0.003**
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.005***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fare
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.003***
+</td>
+<td style="text-align:center;">
+0.002***
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.511***
+</td>
+<td style="text-align:center;">
+0.501***
+</td>
+<td style="text-align:center;">
+0.479***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first_class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.311***
+</td>
+<td style="text-align:center;">
+0.402***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.046)
+</td>
+<td style="text-align:center;">
+(0.051)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+second_class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.198***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.036)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Num.Obs.
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.322
+</td>
+<td style="text-align:center;">
+0.365
+</td>
+<td style="text-align:center;">
+0.390
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2 Within
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Std. Errors
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+</td>
+</tr>
+</tfoot>
+</table>
+<p>Looks great, except we have those annoying labels for each of our estimated equations. We can change these using the <code>base::names</code> function:</p>
+<pre class="r"><code>## Changing model names
+names(survival_models_fast) &lt;- c(&quot;Model 1&quot;, &quot;Model 2&quot;, &quot;Model 3&quot;, &quot;Model 4&quot;, &quot;Model 5&quot;)
+
+## reprinting table
+modelsummary(survival_models_fast,
+             stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,vcov = &quot;robust&quot;, coef_rename = c(&quot;age&quot; = &quot;Age&quot;,&quot;fare&quot; = &quot;Fare&quot;,&quot;female&quot; = &quot;Female&quot;))</code></pre>
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+Model 1
+</th>
+<th style="text-align:center;">
+Model 2
+</th>
+<th style="text-align:center;">
+Model 3
+</th>
+<th style="text-align:center;">
+Model 4
+</th>
+<th style="text-align:center;">
+Model 5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:center;">
+0.484***
+</td>
+<td style="text-align:center;">
+0.421***
+</td>
+<td style="text-align:center;">
+0.209***
+</td>
+<td style="text-align:center;">
+0.266***
+</td>
+<td style="text-align:center;">
+0.238***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.042)
+</td>
+<td style="text-align:center;">
+(0.043)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.041)
+</td>
+<td style="text-align:center;">
+(0.040)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+-0.003**
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+-0.004***
+</td>
+<td style="text-align:center;">
+-0.005***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+<td style="text-align:center;">
+(0.001)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fare
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.003***
+</td>
+<td style="text-align:center;">
+0.002***
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+<td style="text-align:center;">
+0.000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+<td style="text-align:center;">
+(0.000)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.511***
+</td>
+<td style="text-align:center;">
+0.501***
+</td>
+<td style="text-align:center;">
+0.479***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+<td style="text-align:center;">
+(0.034)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+first_class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.311***
+</td>
+<td style="text-align:center;">
+0.402***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+(0.046)
+</td>
+<td style="text-align:center;">
+(0.051)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+second_class
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.198***
+</td>
+</tr>
+<tr>
+<td style="text-align:left;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+</td>
+<td style="text-align:center;box-shadow: 0px 1px">
+(0.036)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Num.Obs.
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+<td style="text-align:center;">
+714
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.322
+</td>
+<td style="text-align:center;">
+0.365
+</td>
+<td style="text-align:center;">
+0.390
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R2 Within
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Std. Errors
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+<td style="text-align:center;">
+Robust
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+</td>
+</tr>
+</tfoot>
+</table>
+<p>You can imagine that this is extremely helpful when adding in many combinations of columns. Oh, and you can also “loop” through left-hand-side variables as well. See the full <code>fixest</code> <a href="https://cran.r-project.org/web/packages/fixest/vignettes/multiple_estimations.html">vignette</a> for all sorts of time saving functions.</p>
+</div>
