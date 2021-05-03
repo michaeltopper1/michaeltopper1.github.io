@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Learning R
 ***
 <br>
-These are my favorite resources for learning R. I *highly* recommend you learn the `tidyverse` if you plan on data wrangling. It is the most intuitive and clean syntax I have seen for cleaning/analyzing data.
+These are my favorite resources for learning R.
 
 -   [R for Data Science](https://r4ds.had.co.nz/) : Hadley Wickham & Garret Grolemund's invaluable text. This is the best place to learn R. I recently discovered that reading chapters of material I *thought* I had an exceptional grasp on provided me with workflow and best practice tips. I cannot recommend this book enough. Read it cover to cover and bookmark it in your favorite web-browser.
 
