@@ -28,7 +28,7 @@ editor_options:
 <link href="{{< blogdown/postref >}}index.en_files/lightable/lightable.css" rel="stylesheet" />
 
 
-<p>With the help of the <code>modelsummary</code> and <code>fixest</code> packages, R has once again shown that it is the superior language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you’re interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it’s inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of <code>modelsummary</code> (my favorite presentation package) and <code>fixest</code> (my favorite estimation package), “looping” through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I’ll demonstrate how to “loop” through regressions without actually looping, and quickly output them to publication-ready tables.</p>
+<p>With the help of the <code>modelsummary</code> and <code>fixest</code> packages, R has once again shown that it is a fantastic language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you’re interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it’s inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of <code>modelsummary</code> (my favorite presentation package) and <code>fixest</code> (my favorite estimation package), “looping” through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I’ll demonstrate how to “loop” through regressions without actually looping, and quickly output them to publication-ready tables.</p>
 <div id="loading-packagesdata" class="section level2">
 <h2>Loading Packages/Data</h2>
 <p>First, let’s load in the required packages.</p>
@@ -47,29 +47,32 @@ titanic_train &lt;- titanic_train %&gt;% as_tibble() %&gt;% janitor::clean_names
 <div id="models-to-estimate-covariates" class="section level2">
 <h2>Models to Estimate (Covariates)</h2>
 <p>Let’s focus on the <code>titanic_train</code> data first. Suppose I want to estimate the following models:</p>
-<p><span class="math display">\[
+<p><span class="math display">\[ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \epsilon_i
 \]</span>
-<span class="math display">\[
+<span class="math display">\[ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \epsilon_i
 \]</span></p>
-<p><span class="math display">\[
+<p><span class="math display">\[ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i + \epsilon_i
 \]</span>
-<span class="math display">\[
+<span class="math display">\[ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
 + \beta_4FirstClass_i + \epsilon_i
 \]</span></p>
-<p><span class="math display">\[
+<p><span class="math display">\[ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
 + \beta_4FirstClass_i + + \beta_5SecondClass_i + \epsilon_i
 \]</span></p>
-<p>In this case, I am estimating a linear probability model on the outcome <span class="math inline">\(Survived_i\)</span> (whether or not person <span class="math inline">\(i\)</span> survived the titanic). Note that <span class="math inline">\(Female_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is a female), <span class="math inline">\(FirstClass_i\)</span>, and <span class="math inline">\(SecondClass_i\)</span> are not columns in the data, so we’re going to need to create these:</p>
+<p>In this case, I am estimating a linear probability model on the outcome <span class="math inline">\(Survived_i\)</span> (whether or not passenger <span class="math inline">\(i\)</span> survived the titanic). Note that <span class="math inline">\(Female_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is a female), <span class="math inline">\(FirstClass_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is in first-class), and <span class="math inline">\(SecondClass_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is in second-class) are not columns in the data, so we’re going to need to create these:</p>
 <pre class="r"><code>## creating binary indicator variable for female, first class, and second class
 titanic_train &lt;- titanic_train %&gt;% 
   mutate(female = ifelse(sex == &quot;female&quot;, 1, 0),
          first_class = ifelse(pclass==1, 1, 0),
          second_class = ifelse(pclass == 2, 1, 0)) </code></pre>
+</div>
+<div id="the-slow-inefficient-solution" class="section level2">
+<h2>The Slow, Inefficient Solution</h2>
 <p>Now we’re going to estimate all of these three models <em>with just regression call from <code>fixest::feols</code></em>. Note that <code>fixest::feols</code> follows similar syntax as the <code>stats::lm</code> or the popular <code>lfe::felm</code> functions. You can read more on the <code>fixest::feols</code> syntax <a href="https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html">here</a>. I’ll first estimate the 3 equations by brute force, then show you how you can estimate each of these in one clean line of code.</p>
 <pre class="r"><code>## long/inefficient way of estimating each of the three models
 
@@ -79,7 +82,7 @@ survive_1 &lt;- titanic_train %&gt;%
 <pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
 <pre class="r"><code>## model 2
 survive_2 &lt;- titanic_train %&gt;% 
-  feols(survived ~ age+ fare, data = .)</code></pre>
+  feols(survived ~ age + fare, data = .)</code></pre>
 <pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
 <pre class="r"><code>## model 3
 survive_3 &lt;- titanic_train %&gt;% 
@@ -426,7 +429,11 @@ Robust
 </tr>
 </tfoot>
 </table>
-<p>Not bad right? WRONG! We can actually do this entire process MUCH quicker. The <code>fixest::feols</code> command can take vectors of columns specifying to “loop” through the combinations of the columns. This can be done with the <code>csw</code> (cumulative step-wise) function. The only thing you need to do is wrap the <code>csw</code> function around your covarites in a vector-like syntax. Observe:</p>
+<p>Not bad right? WRONG!</p>
+</div>
+<div id="the-fast-efficient-solution" class="section level2">
+<h2>The Fast, Efficient Solution</h2>
+<p>We can actually do this entire process MUCH quicker. The <code>fixest::feols</code> command can take vectors of columns specifying to “loop” through the combinations of the columns. This can be done with the <code>csw</code> (cumulative step-wise) function. The only thing you need to do is wrap the <code>csw</code> function around your covarites in a vector-like syntax. Observe:</p>
 <pre class="r"><code>## estimating all three models with one line
 survival_models_fast &lt;- titanic_train %&gt;% 
   feols(survived ~csw(age,fare, female, first_class, second_class), data = .)</code></pre>

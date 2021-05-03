@@ -23,7 +23,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-With the help of the `modelsummary` and `fixest` packages, R has once again shown that it is the superior language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you're interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it's inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of `modelsummary` (my favorite presentation package) and `fixest` (my favorite estimation package), "looping" through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I'll demonstrate how to "loop" through regressions without actually looping, and quickly output them to publication-ready tables.
+With the help of the `modelsummary` and `fixest` packages, R has once again shown that it is a fantastic language for practicing econometrics. Consider the following scenario: you need to estimate a model, but you're interested in how the model changes based on the covariates you add or subtract. Or alternatively, you are curious how robust your model is to various types of fixed effects. In STATA (currently the standard in economics departments), you would need to run each regression separately, and do some heavy work to put each model into a presentable table. This workflow is perfectly acceptable, but it's inefficient. The less time spent on typing/editing tables, the more time for there is for alternative analysis. Moreover, there have been plenty of times where trying a new specification seems like a hassle simply because typing out the different regressions is time/energy consuming. Well, thanks to the newest update of `modelsummary` (my favorite presentation package) and `fixest` (my favorite estimation package), "looping" through several regression specifications and outputting them to a publication-quality table is incredibly fast and light on coding. Within this post, I'll demonstrate how to "loop" through regressions without actually looping, and quickly output them to publication-ready tables.
 
 ## Loading Packages/Data
 
@@ -50,27 +50,27 @@ titanic_train <- titanic_train %>% as_tibble() %>% janitor::clean_names()
 
 Let's focus on the `titanic_train` data first. Suppose I want to estimate the following models:
 
-$$
+$$ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \epsilon_i
 $$
-$$
+$$ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \epsilon_i
 $$
 
-$$
+$$ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i + \epsilon_i
 $$
-$$
+$$ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
 + \beta_4FirstClass_i + \epsilon_i
 $$
 
-$$
+$$ \scriptsize
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
 + \beta_4FirstClass_i + + \beta_5SecondClass_i + \epsilon_i
 $$
 
-In this case, I am estimating a linear probability model on the outcome $Survived_i$ (whether or not person $i$ survived the titanic). Note that $Female_i$ (a binary variable equal to 1 if passenger $i$ is a female), $FirstClass_i$, and $SecondClass_i$ are not columns in the data, so we're going to need to create these:
+In this case, I am estimating a linear probability model on the outcome $Survived_i$ (whether or not passenger $i$ survived the titanic). Note that $Female_i$ (a binary variable equal to 1 if passenger $i$ is a female), $FirstClass_i$ (a binary variable equal to 1 if passenger $i$ is in first-class), and $SecondClass_i$ (a binary variable equal to 1 if passenger $i$ is in second-class) are not columns in the data, so we're going to need to create these:
 
 ```{r}
 ## creating binary indicator variable for female, first class, and second class
@@ -79,6 +79,8 @@ titanic_train <- titanic_train %>%
          first_class = ifelse(pclass==1, 1, 0),
          second_class = ifelse(pclass == 2, 1, 0)) 
 ```
+
+## The Slow, Inefficient Solution
 
 Now we're going to estimate all of these three models *with just regression call from `fixest::feols`*. Note that `fixest::feols` follows similar syntax as the `stats::lm` or the popular `lfe::felm` functions. You can read more on the `fixest::feols` syntax  [here](https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html). I'll first estimate the 3 equations by brute force, then show you how you can estimate each of these in one clean line of code.
 
@@ -91,7 +93,7 @@ survive_1 <- titanic_train %>%
 
 ## model 2
 survive_2 <- titanic_train %>% 
-  feols(survived ~ age+ fare, data = .)
+  feols(survived ~ age + fare, data = .)
 
 ## model 3
 survive_3 <- titanic_train %>% 
@@ -122,8 +124,10 @@ modelsummary(survival_models, stars = T, gof_omit = "A|B|L|R2 Ps",
                                               "first_class" = "First Class",
                                               "second_class" = "Second Class"))
 ```
+Not bad right? WRONG!
 
-Not bad right? WRONG! We can actually do this entire process MUCH quicker. The `fixest::feols` command can take vectors of columns specifying to "loop" through the combinations of the columns. This can be done with the `csw` (cumulative step-wise) function. The only thing you need to do is wrap the `csw` function around your covarites in a vector-like syntax. Observe:
+## The Fast, Efficient Solution
+We can actually do this entire process MUCH quicker. The `fixest::feols` command can take vectors of columns specifying to "loop" through the combinations of the columns. This can be done with the `csw` (cumulative step-wise) function. The only thing you need to do is wrap the `csw` function around your covarites in a vector-like syntax. Observe:
 
 ```{r}
 ## estimating all three models with one line
