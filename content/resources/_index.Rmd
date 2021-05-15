@@ -28,7 +28,6 @@ These are my favorite resources for learning R.
 
 -   [David Robinson's YouTube Channel](https://www.youtube.com/channel/UCeiiqmVK07qhY-wvg3IZiZQ): Every week, David Robinson (author of the `broom` and `tidytext` packages) takes a new data set, and livestreams himself analyzing it. This is an exceptionally good resource for getting comfortable with the `ggplot2` syntax and learning what graphs work with which data. Plus, it's entertaining!
 
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/Kd9BNI6QMmQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 -   [R for STATA Users](https://www.matthieugomez.com/statar/manipulate-data.html): This provides translations of common code from R to STATA and vice-versa.
 
