@@ -1,0 +1,103 @@
+---
+title: Looping Through Columns (Without Looping)
+author: R package build
+date: '2021-08-23'
+slug: looping-through-columns
+categories:
+  - datascience
+  - R
+  - cleaning
+  - dplyr
+tags:
+  - tips
+  - cleaning
+  - wrangling
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2021-08-23T23:06:52-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+One of the most common wrangling problems I have to deal with is looping through columns of a dataframe/tibble. For instance, it is common that I want to create new columns that are a function of previous columns. To demonstrate this, I'll use the [Drought](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-20/readme.md) data set from the TidyTuesdayR project. A description of the data is not too important for this post, as I will be strictly covering a mechanical tool. Let's first load in the data. Note that I will be taking a random 10 rows of the data since it is quite large. There is no need to have the same set of random rows as me- this is simply for presentation purposes.
+
+```{r, message = F}
+## loading a couple packages I'll be using for cleaning
+library(tidyverse)
+library(lubridate)
+
+## link
+link <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-20/drought.csv"
+
+## load in the data
+## get a random sample of the data and get rid of unnnecessary columns
+drought <- read_csv(link) %>% 
+  slice_sample(n = 10) %>% 
+  select(-map_date, -stat_fmt, -ends_with('total')) 
+
+drought
+```
+
+## Looping with `dplyr::across`
+
+For the purpose of this post, let's assume I want to do the following: 
+
+1. Change the `area_pct` and `pop_pct` columns to fractions and give them new names `area_frac` and `pop_frac`.
+
+2. Make six new columns: columns named `valid_start_year`, `valid_start_month`, `valid_start_day` which is the year, month, and day of the column `valid_start` respectively, and columns named `valid_end_year`, `valid_end_month`, `valid_end_day` which is the year, month, and day of the column `valid_end_year` respectively. 
+
+Each of these tasks, while generally tedious and requiring a lot of typing, can be done very quickly with minimal typing using the `dplyr::across` function.
+
+### Part 1: Changing from percents to fractions.
+
+Here's how to complete task one. For demonstration purposes, I will display the code first, and explain afterwards.
+
+```{r}
+drought %>% 
+  mutate(across(.cols = c(area_pct, pop_pct), .fns = ~ ./100)) %>% 
+  rename("area_frac" = "area_pct", "pop_frac" = "pop_pct") 
+```
+
+Let's break down the `dplyr::across` function. The `.cols` argument takes the columns you want to perform operations on, and the `.fns` takes the function you want to perform on the columns. In this case, I created a lambda function using the `~` character, and passed in each column to my function using the `.` character. Hence, this small lambda function is telling `R` to take each of the columns, and divide by 100. 
+
+While there is little coding involved in this solution, this can be made even more compact since the `.cols` argument can take the tidy selecting functions `starts_with` and `ends_with`. Watch as I trim down this code a little:
+
+```{r}
+drought %>% 
+  mutate(across(ends_with("pct"), ~ ./100)) %>% 
+  rename("area_frac" = "area_pct", "pop_frac" = "pop_pct") 
+```
+
+Here I operated my lambda function on all columns that ends with the phrase "pct". You can imagine that this can become extremely powerful when scaled up.
+
+### Part 2: Getting month and year columns
+
+Now I want to achieve my second task. Here, I will showcase one of the most powerful arguments of `dplyr::across`: the `.names` argument. As before, let me first code a solution for demonstration:
+
+```{r}
+drought %>% 
+  mutate(across(starts_with("valid"), ~ year(.), .names = "{.col}_year")) %>% 
+  select(-starts_with("area")) ## only doing this so that we can see the output easier
+```
+
+As before, I am using a tidy select function `starts_with` to target the columns I want to operate on and perform a lambda function on each. However, you can see that I skipped a renaming step by using the `.names` argument. The `.names` argument has the special `glue` syntax (read more [here](https://github.com/tidyverse/glue)). In particular, this means we can use `{.col}` to input in the original column name. 
+
+However, recall that I wanted 6 new columns, which would require me writing three separate `mutate` functions (or 3 big arguments passed into `mutate`) right? Nope! The `across` function's `.fns` argument (which we passed our lambda function to) can actually take a list of functions. Observe:
+
+```{r}
+drought %>% 
+  mutate(across(starts_with("valid"), list(year = ~year(.), month = ~month(.), day = ~day(.)), .names = "{.col}_{.fn}")) %>% 
+  select(starts_with("valid"))
+```
+
+Notice what happened here: I passed in a named list of lambda functions to be performed on each of the columns. In effect, I performed the `lubridate::year`, `lubridate::month`, and `lubridate::day` functions on the columns of interest and achieved the goal of creating 6 different columns all with 1 line of code. Additionally, I used the special`{.fn}` character in the `.names` argument to pass in the name of each of the functions to the new column names. Pretty incredible isn't it?
+
+
+
