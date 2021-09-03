@@ -16,4 +16,6 @@ main:
   - name: Resources
     url: '/resources/' ## this links to the content folder i.e. content/helpful
     weight: 50
+  - name: R Book
+    url: 'https://michaeltopper1.github.io/data-wrangling-econ-book'
 
