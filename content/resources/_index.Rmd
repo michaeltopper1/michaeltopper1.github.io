@@ -31,6 +31,10 @@ These are my favorite resources for learning R.
 
 -   [R for STATA Users](https://www.matthieugomez.com/statar/manipulate-data.html): This provides translations of common code from R to STATA and vice-versa.
 
+Disclaimer: this next recommendation was written by myself and a colleague.
+
+- [Guided Exercises for Econ 145/245](https://michaeltopper1.github.io/data-wrangling-econ-book/): Over the past two years, I have been tasked with creating original course material for the Econ 145 and Econ 245 Data Wrangling for Economists courses at UCSB that use R. I wrote up a lot of material on how to learn R from scratch with [Danny Klinenberg](https://sites.google.com/view/dannyklinenberg/home), in addition to other helpful methods for conducting research and threw it into a textbook format. While this is still very much a work in progress, I believe it has more explanation than most typical texts and covers bits of important information that are often hidden from course curriculum (file organization, Rmarkdown, Git/Github). You can click the link here or click on the "R Book" tab at the top of the web page!
+
 <br>
 
 ## Tools for Data Collection and Literature Reviews
