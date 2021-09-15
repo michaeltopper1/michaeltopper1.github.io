@@ -1,0 +1,77 @@
+---
+title: Append Many Years of Data into One with Minimal Typing
+author: R package build
+date: '2021-09-14'
+slug: add-objects-environment-list
+categories:
+  - cleaning
+  - datascience
+  - R
+tags:
+  - cleaning
+  - tips
+  - wrangling
+subtitle: ''
+summary: 'Stop typing so much and save your sanity.'
+authors: []
+lastmod: '2021-09-14T22:16:15-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
+
+
+<p>Sometimes it’s necessary to make many objects that have similar names. For instance, you may be inputting data from different years (say 2000-2020), and each year requires different cleaning methods. If this is the case, you will likely have an environment that is similar to what the next code chunk will give you: twenty different objects all named similarly.</p>
+<pre class="r"><code>## necessary tidyverse library
+library(tidyverse)
+
+## years to iterate through
+years &lt;- c(2000:2020)
+
+## creating 20 similar objects
+for (year in years) {
+  name &lt;- paste0(&quot;data_&quot;, year) ## creating name
+  df &lt;- tibble(col_1 = c(1,2,3,4,5), col_2 = c(1,2,3,4,5)) ## creating new tibble
+  assign(name, df) ## assign the df object the name data_year
+  rm(df) ## remove the df object
+}</code></pre>
+<p>Hence, we now have twenty different objects/data sets that have a similar name: “data_{year}”.</p>
+<p>From here, it is common to append all of the objects together to make one large data set. This would require the boring (and painful!) code as follows:</p>
+<pre class="r"><code>## the bad and inefficient way to do this!
+full_data &lt;- bind_rows(data_2000, data_2001,
+                        data_2002, data_2003,
+                        data_2004, data_2005,
+                        data_2006, data_2007,
+                        data_2008, data_2009,
+                        data_2010, data_2011,
+                        data_2012, data_2013,
+                        data_2014, data_2015,
+                        data_2016, data_2017,
+                        data_2018, data_2019,
+                        data_2020)</code></pre>
+<p>Not only is this code irritating to write, it is also error prone. I personally had to double check a couple times to be certain all the years were there when writing this post.</p>
+<p>Of course, there is a MUCH better way to do this, and it’s incredibly simple. To do this, we will use the <code>base::mget</code> function in addition to the <code>base::ls</code> function. The <code>base::mget</code> function gives us the ability to search for an object by name in the global environment, while the <code>base::ls</code> function enables us to find the objects using a regular expression pattern in our global environment. Let’s take a look at <code>base::ls</code> first:</p>
+<pre class="r"><code>## listing all of the objects that begin with &quot;data&quot; in our global environment
+ls(pattern = &quot;^data&quot;)</code></pre>
+<pre><code>##  [1] &quot;data_2000&quot; &quot;data_2001&quot; &quot;data_2002&quot; &quot;data_2003&quot; &quot;data_2004&quot; &quot;data_2005&quot;
+##  [7] &quot;data_2006&quot; &quot;data_2007&quot; &quot;data_2008&quot; &quot;data_2009&quot; &quot;data_2010&quot; &quot;data_2011&quot;
+## [13] &quot;data_2012&quot; &quot;data_2013&quot; &quot;data_2014&quot; &quot;data_2015&quot; &quot;data_2016&quot; &quot;data_2017&quot;
+## [19] &quot;data_2018&quot; &quot;data_2019&quot; &quot;data_2020&quot;</code></pre>
+<p>The <code>base::ls</code> function simply listed all of the objects that began with “data” in the global environment (this used the regex expression <code>^data</code> or “starts with data” in English).</p>
+<p>Now all we need to do is combine this with <code>base::mget</code> and assign a name to get a list of all of our global objects that begin with “data”. Observe:</p>
+<pre class="r"><code>## combines the individual data sets into a list
+full_data_easy &lt;- mget(ls(pattern = &quot;^data&quot;))</code></pre>
+<p>Of course, this only put all of our individual data sets into a list whereas the objective is to create one large data set containing all of the years. However, this is where you can use your favorite appending method. For simplicity, I’ll use <code>purrr::reduce</code> in conjunction with <code>dplyr::bind_rows</code>:</p>
+<pre class="r"><code>## changing the list of data sets to one large data set
+full_data_easy &lt;- mget(ls(pattern = &quot;^data&quot;)) %&gt;% 
+  reduce(bind_rows)</code></pre>
+<p>Now let’s check if our data is the same with this simple method as the long method:</p>
+<pre class="r"><code>## checking if the two data sets are the same
+identical(full_data, full_data_easy)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Success!</p>

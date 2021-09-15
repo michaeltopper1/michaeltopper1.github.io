@@ -1,0 +1,98 @@
+---
+title: Append Many Years of Data into One with Minimal Typing
+author: R package build
+date: '2021-09-14'
+slug: add-objects-environment-list
+categories:
+  - cleaning
+  - datascience
+  - R
+tags:
+  - cleaning
+  - tips
+  - wrangling
+subtitle: ''
+summary: 'Stop typing so much and save your sanity.'
+authors: []
+lastmod: '2021-09-14T22:16:15-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+Sometimes it's necessary to make many objects that have similar names. For instance, you may be inputting data from different years (say 2000-2020), and each year requires different cleaning methods. If this is the case, you will likely have an environment that is similar to what the next code chunk will give you: twenty different objects all named similarly.
+
+```{r, message = F}
+## necessary tidyverse library
+library(tidyverse)
+
+## years to iterate through
+years <- c(2000:2020)
+
+## creating 20 similar objects
+for (year in years) {
+  name <- paste0("data_", year) ## creating name
+  df <- tibble(col_1 = c(1,2,3,4,5), col_2 = c(1,2,3,4,5)) ## creating new tibble
+  assign(name, df) ## assign the df object the name data_year
+  rm(df) ## remove the df object
+}
+
+```
+
+Hence, we now have twenty different objects/data sets that have a similar name: "data_{year}".
+
+From here, it is common to append all of the objects together to make one large data set. This would require the boring (and painful!) code as follows:
+
+```{r}
+## the bad and inefficient way to do this!
+full_data <- bind_rows(data_2000, data_2001,
+                        data_2002, data_2003,
+                        data_2004, data_2005,
+                        data_2006, data_2007,
+                        data_2008, data_2009,
+                        data_2010, data_2011,
+                        data_2012, data_2013,
+                        data_2014, data_2015,
+                        data_2016, data_2017,
+                        data_2018, data_2019,
+                        data_2020)
+```
+
+Not only is this code irritating to write, it is also error prone. I personally had to double check a couple times to be certain all the years were there when writing this post.
+
+Of course, there is a MUCH better way to do this, and it's incredibly simple. To do this, we will use the `base::mget` function in addition to the `base::ls` function. The `base::mget` function gives us the ability to search for an object by name in the global environment, while the `base::ls` function enables us to find the objects using a regular expression pattern in our global environment. Let's take a look at `base::ls` first:
+
+```{r}
+## listing all of the objects that begin with "data" in our global environment
+ls(pattern = "^data")
+```
+The `base::ls` function simply listed all of the objects that began with "data" in the global environment (this used the regex expression `^data` or "starts with data" in English). 
+
+Now all we need to do is combine this with `base::mget` and assign a name to get a list of all of our global objects that begin with "data". Observe:
+
+```{r}
+## combines the individual data sets into a list
+full_data_easy <- mget(ls(pattern = "^data"))
+```
+
+Of course, this only put all of our individual data sets into a list whereas the objective is to create one large data set containing all of the years. However, this is where you can use your favorite appending method. For simplicity, I'll use `purrr::reduce` in conjunction with `dplyr::bind_rows`:
+
+
+```{r}
+## changing the list of data sets to one large data set
+full_data_easy <- mget(ls(pattern = "^data")) %>% 
+  reduce(bind_rows)
+```
+
+Now let's check if our data is the same with this simple method as the long method:
+
+```{r}
+## checking if the two data sets are the same
+identical(full_data, full_data_easy)
+```
+
+Success!
+
