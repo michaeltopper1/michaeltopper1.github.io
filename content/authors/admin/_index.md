@@ -33,13 +33,10 @@ social:
   link: https://twitter.com/MichaelTopper15
 - icon: graduation-cap
   icon_pack: fas
-  link: 
+  link: https://econ.ucsb.edu/people/students
 - icon: github
   icon_pack: fab
   link: https://github.com/michaeltopper1
-- icon: linkedin
-  icon_pack: fab
-  link: 
 superuser: true
 title: Michael Topper
 ---
