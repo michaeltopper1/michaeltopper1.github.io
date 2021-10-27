@@ -17,6 +17,18 @@ knitr::opts_chunk$set(echo = TRUE)
 # }
 ```
 
+## Data Wrangling Assignments  
+***
+I am a proponent of high quality open source material, especially for educational purposes. Here are some selected homework assignments I authored for the courses Econ 145: Data Wrangling for Economics and 245: Data Wrangling for Economists (Graduate) at UCSB. When I first started learning data wrangling, I was amazed that there were very few free assignments on the web that were practical - most either had a skeleton of the answer pre-coded or did not provide enough hard-practice to be helpful. My hope is that these can fill that gap for someone who would like high quality material without shelling out a few thousand dollars for a coding bootcamp or official college course. 
+
+These assignments would not be what they are without the excellent feedback and testing from Danny Klinenberg, Dick Startz, Zihao Zheng, Victor Huang, Yubo Wei, Robin Hollingsworth, Nathan Roll, and Elie Singer (you are all incredible!). The material in these homework assignments coincide with the material in my R Book (coauthored with Danny Klinenberg) which you can find linked at the top of the website. These homework assignments require specific data, so feel free to shoot me an email and I will send you the materials if you want to attempt them yourself!.
+
+* [Estimation of models](2021_f_hw4_prompt_v1.pdf) 
+* [Visualization with ggplot2](2021_f_hw5_prompt_v1.pdf)
+* [Regular Expressions and Scraping PDFs](2021_f_hw6_prompt_v1.pdf)
+
+If you would like to see more please do not be shy about asking!
+
 ## Learning R
 ***
 <br>
@@ -49,7 +61,7 @@ This is, in my opinion, the best and most efficient method of tracking journal a
 
 The Freedom of Information Act is an excellent resource for getting data. It states that federal institutions are required to give you documents that exist (with some exceptions) within a certain amount of time. I have frequently used this method to receive police department data. Here are some of my favorite resources to get you started with using this tool:
 
--   [Muckrock](https://www.muckrock.com/): a non-profit news site that provides a repository of thousands of pages of FOIA'd information. See what documents/data researchers and journalists are currently seeking.
+-   [Muckrock](https://www.muckrock.com/): a non-profit news site that provides a repository of thousands of pages of FOIA'd information. See what documents/data researchers and journalists are currently seeking. Furthermore, you can file requests in states that refuse to answer out-of-state residents (for instance, a Californian requesting data from Arkansas) for a very small and reasonable fee ($5). This tool has been a life-saver in my research - I hope it helps you too!
 
 -   [National Freedom of Information Coalition Sample FOIA Letters](https://www.nfoic.org/state-sample-foia-request-letters/): templates for FOIA requests. Since FOIA laws vary by state, this is a particularly useful resource when your analysis requires you to gather data from multiple states.
 
