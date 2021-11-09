@@ -27,6 +27,7 @@ projects: []
 editor_options: 
   chunk_output_type: console
 ---
+**Please turn the website to "light mode" to see the tables clearly! **
 
 Oftentimes, it is preferable to create a regression table that has many subsets of your data set. For instance, in my own work on fraternities and crime, I find it necessary to show three sets of results: effects on in the full sample, effects on the weekends, and effects on the weekdays. Moreover, I believe a great way to present this data is with a *long* table rather than a *wide* table. In particular, this means having a table with grouped rows—one grouping for each subset of data. Usually, these tables can only be created with manual editing since no out-out-box function in R can handle such a task at the moment. However, the `modelsummary` package can actually achieve this with some small data manipulation with `dplyr`. For reference, below is a regression table I'll demonstrate how to make:
 
