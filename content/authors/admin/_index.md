@@ -20,7 +20,7 @@ interests:
 organizations:
 - name: UCSB
   url: https://www.econ.ucsb.edu/
-role: PhD Student in Economics
+role: PhD Candidate in Economics
 social:
 - icon: envelope
   icon_pack: fas
