@@ -1,0 +1,78 @@
+---
+title: Anthony Fantano Data Scraped (Download in CSV)
+author: Michael Topper
+date: '2022-06-22'
+slug: anthony-fantano-data-scraped-download-in-csv
+categories: []
+tags: []
+subtitle: ''
+summary: 'Like Melon? Me too. Analyze his data here!'
+authors: []
+lastmod: '2022-06-22T16:37:17-07:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+editor_options: 
+  chunk_output_type: console
+---
+
+Do you like Melon? Me too. [Anthony Fantano](https://www.youtube.com/c/theneedledrop) does a great job reviewing music, although his preferences seem to be a little sporadic at times.  
+
+Now what if I told you that you could download a csv file of all his ratings and quantify his preferences? Well, now you can. You can either go to my Github account and find it under `webscraping/fantano/xxmaster_data.csv`, or you can download it [here](xxmaster_data.csv). 
+
+The data is scraped from [albumoftheyear.org](albumoftheyear.org). Below are a couple of graphs I produced with the data:
+
+```{r, include = F}
+library(tidyverse)
+library(tidytext)
+fantano <- read_csv(here::here("content/post/2022-06-22-anthony-fantano-data-scraped-download-in-csv/xxmaster_data.csv"))
+
+
+time_trend <- fantano %>% 
+  mutate(release_date = lubridate::mdy(release_date),
+         year = lubridate::year(release_date),
+         month = lubridate::month(release_date),
+         user_score = as.double(user_score)) %>% 
+  filter(year > 2010) %>% 
+  mutate(date = lubridate::ymd(paste0(year, "-", month, "-1")), .before = 1) %>% 
+  group_by(date) %>% 
+  summarize(fantano = mean(fantano_rating, na.rm = T),
+            other_critics = mean(critic_score, na.rm = T),
+            users = mean(user_score, na.rm = T)) %>% 
+  pivot_longer(cols = -date, names_to = "reviewer", values_to = "average") %>% 
+  mutate(reviewer = str_to_title(str_replace(reviewer, "_", " "))) %>% 
+  ggplot(aes(date, average, color = reviewer)) +
+  geom_line() +
+  labs(color = "Rater:", y = "Average Score (Out of 100)", x = "", title = "Average Album Ratings by Month (2011-2022)") +
+  theme_minimal() +
+  theme(legend.position = "bottom") 
+
+
+top_albums <- fantano %>% 
+  add_count(artist) %>% 
+  filter(n > 1) %>% 
+  mutate(artist = glue::glue("{artist} ({n})")) %>% 
+  group_by(artist) %>% 
+  summarize(average_rating = mean(fantano_rating, na.rm = T)) %>% 
+  arrange(desc(average_rating)) %>% 
+  head(20) %>% 
+  mutate(artist = fct_reorder(artist, average_rating)) %>% 
+  ggplot(aes(average_rating, artist)) +
+  geom_col() +
+  coord_cartesian(xlim = c(70,100))+
+  labs(x = "Average Fantano Rating (Perfect Score is 100)", y = "", title = "Fantano's Top 20 Artists (2011-2022)", subtitle = "Only includes artists with 2 or more albums released") +
+  theme_minimal()
+```
+
+```{r, echo = F,  fig.cap="Time trend of Anthony Fantano's average ratings by month from 2011-2022."}
+time_trend
+```
+
+```{r,echo = F,  fig.cap = "Anthony Fantano's favorite artists from 2011-2022 by average rating. Numbers in parenthesis denote number of albums reviewed by Fantano from 2011-2022."}
+top_albums
+```
+
+ 
