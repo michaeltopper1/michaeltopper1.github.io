@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # }
 ```
 ## Software
-
+***
 I have recently created a table-making package called [Panelsummary](https://michaeltopper1.github.io/panelsummary/index.html) which allows for making beautiful regression tables with multiple panels. It is currently in beta-testing stages, but I am hopeful it will be released to CRAN shortly. 
 
 
