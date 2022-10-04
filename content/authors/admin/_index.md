@@ -15,8 +15,9 @@ email: "michaeltopper@ucsb.edu"
 highlight_name: false
 interests:
 - Economics of Crime
-- Health Economics
+- Labor Economics
 - Data Science
+- Open Source Software
 organizations:
 - name: UCSB
   url: https://www.econ.ucsb.edu/
@@ -41,7 +42,7 @@ superuser: true
 title: Michael Topper
 ---
 
-I am a PhD candidate at the University of California, Santa Barbara in the economics department. My research focuses on the economics of crime. 
+I am a 5th-year PhD candidate at the University of California, Santa Barbara in the economics department. My research focuses on the economics of crime. 
 
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "media/CV_Michael_Topper.pdf" "newtab" >}}CV{{< /staticref >}}.
