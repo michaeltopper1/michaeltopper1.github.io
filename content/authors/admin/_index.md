@@ -16,8 +16,9 @@ highlight_name: false
 interests:
 - Economics of Crime
 - Labor Economics
+- Health Economics
 - Data Science
-- Open Source Software
+- Open-source Software
 organizations:
 - name: UCSB
   url: https://www.econ.ucsb.edu/
