@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Working Papers
 ***
-**Check out the most recent draft [here](https://github.com/michaeltopper1/Fraternities/blob/master/paper_iterations/working_paper_may_2022/main.pdf)!**
+**Check out the most recent draft [here](https://github.com/michaeltopper1/Fraternities/blob/master/paper_iterations/working_paper_november_2022/main.pdf)!**
 
 ### The Effect of Fraternity Moratoriums on Alcohol Offenses and Sexual Assaults
 
