@@ -23,7 +23,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
 <script src="{{< blogdown/postref >}}index.en_files/kePrint/kePrint.js"></script>
 <link href="{{< blogdown/postref >}}index.en_files/lightable/lightable.css" rel="stylesheet" />
 
@@ -57,11 +56,11 @@ Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \epsilon_i
 Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i + \epsilon_i
 \]</span>
 <span class="math display">\[ \scriptsize
-Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i
 + \beta_4FirstClass_i + \epsilon_i
 \]</span></p>
 <p><span class="math display">\[ \scriptsize
-Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i 
+Survived_i = \beta_0 + \beta_1 Age_i + \beta_2 Fare_i + \beta_3 Female_i
 + \beta_4FirstClass_i + + \beta_5SecondClass_i + \epsilon_i
 \]</span></p>
 <p>In this case, I am estimating a linear probability model on the outcome <span class="math inline">\(Survived_i\)</span> (whether or not passenger <span class="math inline">\(i\)</span> survived the titanic). Note that <span class="math inline">\(Female_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is a female), <span class="math inline">\(FirstClass_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is in first-class), and <span class="math inline">\(SecondClass_i\)</span> (a binary variable equal to 1 if passenger <span class="math inline">\(i\)</span> is in second-class) are not columns in the data, so we’re going to need to create these:</p>
@@ -108,7 +107,7 @@ modelsummary(survival_models, stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,
                                               &quot;female&quot; = &quot;Female&quot;,
                                               &quot;first_class&quot; = &quot;First Class&quot;,
                                               &quot;second_class&quot; = &quot;Second Class&quot;))</code></pre>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -117,16 +116,16 @@ modelsummary(survival_models, stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,
 Model 1
 </th>
 <th style="text-align:center;">
-Model 2
+ Model 2
 </th>
 <th style="text-align:center;">
-Model 3
+ Model 3
 </th>
 <th style="text-align:center;">
-Model 4
+ Model 4
 </th>
 <th style="text-align:center;">
-Model 5
+ Model 5
 </th>
 </tr>
 </thead>
@@ -158,7 +157,7 @@ Model 5
 (0.042)
 </td>
 <td style="text-align:center;">
-(0.043)
+(0.042)
 </td>
 <td style="text-align:center;">
 (0.041)
@@ -175,19 +174,19 @@ Model 5
 Age
 </td>
 <td style="text-align:center;">
--0.003**
+−0.003*
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004**
 </td>
 <td style="text-align:center;">
--0.002
+−0.002
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004***
 </td>
 <td style="text-align:center;">
--0.005***
+−0.005***
 </td>
 </tr>
 <tr>
@@ -278,7 +277,7 @@ Female
 (0.034)
 </td>
 <td style="text-align:center;">
-(0.034)
+(0.033)
 </td>
 </tr>
 <tr>
@@ -308,10 +307,10 @@ First Class
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
-(0.046)
+(0.045)
 </td>
 <td style="text-align:center;">
-(0.051)
+(0.050)
 </td>
 </tr>
 <tr>
@@ -342,7 +341,7 @@ Second Class
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.036)
+(0.035)
 </td>
 </tr>
 <tr>
@@ -387,44 +386,49 @@ R2
 </tr>
 <tr>
 <td style="text-align:left;">
-R2 Within
+RMSE
 </td>
 <td style="text-align:center;">
+0.49
 </td>
 <td style="text-align:center;">
+0.47
 </td>
 <td style="text-align:center;">
+0.40
 </td>
 <td style="text-align:center;">
+0.39
 </td>
 <td style="text-align:center;">
+0.38
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Std. Errors
+Std.Errors
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 </tr>
 </tbody>
 <tfoot>
 <tr>
-<td style="padding: 0; border:0;" colspan="100%">
-<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+<td style="padding: 0; " colspan="100%">
+<sup></sup> + p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001
 </td>
 </tr>
 </tfoot>
@@ -437,29 +441,30 @@ Robust
 <pre class="r"><code>## estimating all three models with one line
 survival_models_fast &lt;- titanic_train %&gt;% 
   feols(survived ~csw(age,fare, female, first_class, second_class), data = .)</code></pre>
-<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).</code></pre>
+<pre><code>## NOTE: 177 observations removed because of NA values (RHS: 177).
+##       |-&gt; this msg only concerns the variables common to all estimations</code></pre>
 <pre class="r"><code>## printing table 
 modelsummary(survival_models_fast,
              stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,vcov = &quot;robust&quot;, coef_rename = c(&quot;age&quot; = &quot;Age&quot;,&quot;fare&quot; = &quot;Fare&quot;,&quot;female&quot; = &quot;Female&quot;))</code></pre>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table">
 <thead>
 <tr>
 <th style="text-align:left;">
 </th>
 <th style="text-align:center;">
-age
+rhs: age
 </th>
 <th style="text-align:center;">
-age + fare
+rhs: age + fare
 </th>
 <th style="text-align:center;">
-age + fare + female
+rhs: age + fare + female
 </th>
 <th style="text-align:center;">
-age + fare + female + first_class
+rhs: age + fare + female + first_class
 </th>
 <th style="text-align:center;">
-age + fare + female + first_class + second_class
+rhs: age + fare + female + first_class + second_class
 </th>
 </tr>
 </thead>
@@ -491,7 +496,7 @@ age + fare + female + first_class + second_class
 (0.042)
 </td>
 <td style="text-align:center;">
-(0.043)
+(0.042)
 </td>
 <td style="text-align:center;">
 (0.041)
@@ -508,19 +513,19 @@ age + fare + female + first_class + second_class
 Age
 </td>
 <td style="text-align:center;">
--0.003**
+−0.003*
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004**
 </td>
 <td style="text-align:center;">
--0.002
+−0.002
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004***
 </td>
 <td style="text-align:center;">
--0.005***
+−0.005***
 </td>
 </tr>
 <tr>
@@ -611,7 +616,7 @@ Female
 (0.034)
 </td>
 <td style="text-align:center;">
-(0.034)
+(0.033)
 </td>
 </tr>
 <tr>
@@ -641,10 +646,10 @@ first_class
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
-(0.046)
+(0.045)
 </td>
 <td style="text-align:center;">
-(0.051)
+(0.050)
 </td>
 </tr>
 <tr>
@@ -675,7 +680,7 @@ second_class
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.036)
+(0.035)
 </td>
 </tr>
 <tr>
@@ -720,44 +725,49 @@ R2
 </tr>
 <tr>
 <td style="text-align:left;">
-R2 Within
+RMSE
 </td>
 <td style="text-align:center;">
+0.49
 </td>
 <td style="text-align:center;">
+0.47
 </td>
 <td style="text-align:center;">
+0.40
 </td>
 <td style="text-align:center;">
+0.39
 </td>
 <td style="text-align:center;">
+0.38
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Std. Errors
+Std.Errors
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 </tr>
 </tbody>
 <tfoot>
 <tr>
-<td style="padding: 0; border:0;" colspan="100%">
-<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+<td style="padding: 0; " colspan="100%">
+<sup></sup> + p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001
 </td>
 </tr>
 </tfoot>
@@ -769,7 +779,7 @@ names(survival_models_fast) &lt;- c(&quot;Model 1&quot;, &quot;Model 2&quot;, &q
 ## reprinting table
 modelsummary(survival_models_fast,
              stars = T, gof_omit = &quot;A|B|L|R2 Ps&quot;,vcov = &quot;robust&quot;, coef_rename = c(&quot;age&quot; = &quot;Age&quot;,&quot;fare&quot; = &quot;Fare&quot;,&quot;female&quot; = &quot;Female&quot;))</code></pre>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -778,16 +788,16 @@ modelsummary(survival_models_fast,
 Model 1
 </th>
 <th style="text-align:center;">
-Model 2
+ Model 2
 </th>
 <th style="text-align:center;">
-Model 3
+ Model 3
 </th>
 <th style="text-align:center;">
-Model 4
+ Model 4
 </th>
 <th style="text-align:center;">
-Model 5
+ Model 5
 </th>
 </tr>
 </thead>
@@ -819,7 +829,7 @@ Model 5
 (0.042)
 </td>
 <td style="text-align:center;">
-(0.043)
+(0.042)
 </td>
 <td style="text-align:center;">
 (0.041)
@@ -836,19 +846,19 @@ Model 5
 Age
 </td>
 <td style="text-align:center;">
--0.003**
+−0.003*
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004**
 </td>
 <td style="text-align:center;">
--0.002
+−0.002
 </td>
 <td style="text-align:center;">
--0.004***
+−0.004***
 </td>
 <td style="text-align:center;">
--0.005***
+−0.005***
 </td>
 </tr>
 <tr>
@@ -939,7 +949,7 @@ Female
 (0.034)
 </td>
 <td style="text-align:center;">
-(0.034)
+(0.033)
 </td>
 </tr>
 <tr>
@@ -969,10 +979,10 @@ first_class
 <td style="text-align:center;">
 </td>
 <td style="text-align:center;">
-(0.046)
+(0.045)
 </td>
 <td style="text-align:center;">
-(0.051)
+(0.050)
 </td>
 </tr>
 <tr>
@@ -1003,7 +1013,7 @@ second_class
 <td style="text-align:center;box-shadow: 0px 1px">
 </td>
 <td style="text-align:center;box-shadow: 0px 1px">
-(0.036)
+(0.035)
 </td>
 </tr>
 <tr>
@@ -1048,44 +1058,49 @@ R2
 </tr>
 <tr>
 <td style="text-align:left;">
-R2 Within
+RMSE
 </td>
 <td style="text-align:center;">
+0.49
 </td>
 <td style="text-align:center;">
+0.47
 </td>
 <td style="text-align:center;">
+0.40
 </td>
 <td style="text-align:center;">
+0.39
 </td>
 <td style="text-align:center;">
+0.38
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Std. Errors
+Std.Errors
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 <td style="text-align:center;">
-Robust
+HC1
 </td>
 </tr>
 </tbody>
 <tfoot>
 <tr>
-<td style="padding: 0; border:0;" colspan="100%">
-<sup></sup> * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01
+<td style="padding: 0; " colspan="100%">
+<sup></sup> + p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001
 </td>
 </tr>
 </tfoot>

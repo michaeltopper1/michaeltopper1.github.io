@@ -26,7 +26,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-<script src="{{< blogdown/postref >}}index.en_files/header-attrs/header-attrs.js"></script>
 
 
 <p>One of the most common wrangling problems I have to deal with is looping through columns of a dataframe/tibble. For instance, it is common that I want to create new columns that are a function of previous columns. To demonstrate this, I’ll use the <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-20/readme.md">Drought</a> data set from the TidyTuesdayR project. A description of the data is not too important for this post, as I will be strictly covering a mechanical tool. Let’s first load in the data. Note that I will be taking a random 10 rows of the data since it is quite large. There is no need to have the same set of random rows as me- this is simply for presentation purposes.</p>
@@ -47,16 +46,16 @@ drought</code></pre>
 <pre><code>## # A tibble: 10 × 6
 ##    state_abb valid_start valid_end  drought_lvl area_pct pop_pct
 ##    &lt;chr&gt;     &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;
-##  1 SD        2004-06-22  2004-06-28 D0             10.5     3.48
-##  2 NH        2002-12-10  2002-12-16 D0              0       0   
-##  3 SD        2008-03-25  2008-03-31 D2             10.7     2.92
-##  4 NJ        2010-05-11  2010-05-17 D2              0       0   
-##  5 ME        2016-12-20  2016-12-26 D2             36.4    54.1 
-##  6 MN        2002-04-02  2002-04-08 D4              0       0   
-##  7 WY        2003-12-23  2003-12-29 D1              4.25   10.2 
-##  8 UT        2019-04-23  2019-04-29 D3              0       0   
-##  9 VA        2015-12-01  2015-12-07 D4              0       0   
-## 10 MT        2003-06-17  2003-06-23 D1             27.0    26.9</code></pre>
+##  1 IN        2006-01-03  2006-01-09 None            80.5    74.9
+##  2 KY        2018-05-29  2018-06-04 D1               0       0  
+##  3 CA        2015-04-21  2015-04-27 D4              46.8    54.2
+##  4 MN        2020-03-10  2020-03-16 D1               0       0  
+##  5 IN        2005-08-30  2005-09-05 D4               0       0  
+##  6 ND        2002-04-02  2002-04-08 None             0       0  
+##  7 NC        2010-06-22  2010-06-28 D3               0       0  
+##  8 NJ        2015-10-13  2015-10-19 None            63.7    37.2
+##  9 PA        2017-02-21  2017-02-27 D0              14.3     6.6
+## 10 ND        2008-05-27  2008-06-02 D4               0       0</code></pre>
 <div id="looping-with-dplyracross" class="section level2">
 <h2>Looping with <code>dplyr::across</code></h2>
 <p>For the purpose of this post, let’s assume I want to do the following:</p>
@@ -74,16 +73,16 @@ drought</code></pre>
 <pre><code>## # A tibble: 10 × 6
 ##    state_abb valid_start valid_end  drought_lvl area_frac pop_frac
 ##    &lt;chr&gt;     &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
-##  1 SD        2004-06-22  2004-06-28 D0             0.105    0.0348
-##  2 NH        2002-12-10  2002-12-16 D0             0        0     
-##  3 SD        2008-03-25  2008-03-31 D2             0.107    0.0292
-##  4 NJ        2010-05-11  2010-05-17 D2             0        0     
-##  5 ME        2016-12-20  2016-12-26 D2             0.364    0.541 
-##  6 MN        2002-04-02  2002-04-08 D4             0        0     
-##  7 WY        2003-12-23  2003-12-29 D1             0.0425   0.102 
-##  8 UT        2019-04-23  2019-04-29 D3             0        0     
-##  9 VA        2015-12-01  2015-12-07 D4             0        0     
-## 10 MT        2003-06-17  2003-06-23 D1             0.270    0.269</code></pre>
+##  1 IN        2006-01-03  2006-01-09 None            0.805    0.749
+##  2 KY        2018-05-29  2018-06-04 D1              0        0    
+##  3 CA        2015-04-21  2015-04-27 D4              0.468    0.542
+##  4 MN        2020-03-10  2020-03-16 D1              0        0    
+##  5 IN        2005-08-30  2005-09-05 D4              0        0    
+##  6 ND        2002-04-02  2002-04-08 None            0        0    
+##  7 NC        2010-06-22  2010-06-28 D3              0        0    
+##  8 NJ        2015-10-13  2015-10-19 None            0.637    0.372
+##  9 PA        2017-02-21  2017-02-27 D0              0.143    0.066
+## 10 ND        2008-05-27  2008-06-02 D4              0        0</code></pre>
 <p>Let’s break down the <code>dplyr::across</code> function. The <code>.cols</code> argument takes the columns you want to perform operations on, and the <code>.fns</code> takes the function you want to perform on the columns. In this case, I created a lambda function using the <code>~</code> character, and passed in each column to my function using the <code>.</code> character. Hence, this small lambda function is telling <code>R</code> to take each of the columns, and divide by 100.</p>
 <p>While there is little coding involved in this solution, this can be made even more compact since the <code>.cols</code> argument can take the tidy selecting functions <code>starts_with</code> and <code>ends_with</code>. Watch as I trim down this code a little:</p>
 <pre class="r"><code>drought %&gt;% 
@@ -92,16 +91,16 @@ drought</code></pre>
 <pre><code>## # A tibble: 10 × 6
 ##    state_abb valid_start valid_end  drought_lvl area_frac pop_frac
 ##    &lt;chr&gt;     &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
-##  1 SD        2004-06-22  2004-06-28 D0             0.105    0.0348
-##  2 NH        2002-12-10  2002-12-16 D0             0        0     
-##  3 SD        2008-03-25  2008-03-31 D2             0.107    0.0292
-##  4 NJ        2010-05-11  2010-05-17 D2             0        0     
-##  5 ME        2016-12-20  2016-12-26 D2             0.364    0.541 
-##  6 MN        2002-04-02  2002-04-08 D4             0        0     
-##  7 WY        2003-12-23  2003-12-29 D1             0.0425   0.102 
-##  8 UT        2019-04-23  2019-04-29 D3             0        0     
-##  9 VA        2015-12-01  2015-12-07 D4             0        0     
-## 10 MT        2003-06-17  2003-06-23 D1             0.270    0.269</code></pre>
+##  1 IN        2006-01-03  2006-01-09 None            0.805    0.749
+##  2 KY        2018-05-29  2018-06-04 D1              0        0    
+##  3 CA        2015-04-21  2015-04-27 D4              0.468    0.542
+##  4 MN        2020-03-10  2020-03-16 D1              0        0    
+##  5 IN        2005-08-30  2005-09-05 D4              0        0    
+##  6 ND        2002-04-02  2002-04-08 None            0        0    
+##  7 NC        2010-06-22  2010-06-28 D3              0        0    
+##  8 NJ        2015-10-13  2015-10-19 None            0.637    0.372
+##  9 PA        2017-02-21  2017-02-27 D0              0.143    0.066
+## 10 ND        2008-05-27  2008-06-02 D4              0        0</code></pre>
 <p>Here I operated my lambda function on all columns that ends with the phrase “pct”. You can imagine that this can become extremely powerful when scaled up.</p>
 </div>
 <div id="part-2-getting-month-and-year-columns" class="section level3">
@@ -111,39 +110,39 @@ drought</code></pre>
   mutate(across(starts_with(&quot;valid&quot;), ~ year(.), .names = &quot;{.col}_year&quot;)) %&gt;% 
   select(-starts_with(&quot;area&quot;)) ## only doing this so that we can see the output easier</code></pre>
 <pre><code>## # A tibble: 10 × 7
-##    state_abb valid_start valid_end  drought_lvl pop_pct valid_start_year
-##    &lt;chr&gt;     &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;         &lt;dbl&gt;            &lt;dbl&gt;
-##  1 SD        2004-06-22  2004-06-28 D0             3.48             2004
-##  2 NH        2002-12-10  2002-12-16 D0             0                2002
-##  3 SD        2008-03-25  2008-03-31 D2             2.92             2008
-##  4 NJ        2010-05-11  2010-05-17 D2             0                2010
-##  5 ME        2016-12-20  2016-12-26 D2            54.1              2016
-##  6 MN        2002-04-02  2002-04-08 D4             0                2002
-##  7 WY        2003-12-23  2003-12-29 D1            10.2              2003
-##  8 UT        2019-04-23  2019-04-29 D3             0                2019
-##  9 VA        2015-12-01  2015-12-07 D4             0                2015
-## 10 MT        2003-06-17  2003-06-23 D1            26.9              2003
-## # … with 1 more variable: valid_end_year &lt;dbl&gt;</code></pre>
+##    state_abb valid_start valid_end  drought_lvl pop_pct valid_start_year valid…¹
+##    &lt;chr&gt;     &lt;date&gt;      &lt;date&gt;     &lt;chr&gt;         &lt;dbl&gt;            &lt;dbl&gt;   &lt;dbl&gt;
+##  1 IN        2006-01-03  2006-01-09 None           74.9             2006    2006
+##  2 KY        2018-05-29  2018-06-04 D1              0               2018    2018
+##  3 CA        2015-04-21  2015-04-27 D4             54.2             2015    2015
+##  4 MN        2020-03-10  2020-03-16 D1              0               2020    2020
+##  5 IN        2005-08-30  2005-09-05 D4              0               2005    2005
+##  6 ND        2002-04-02  2002-04-08 None            0               2002    2002
+##  7 NC        2010-06-22  2010-06-28 D3              0               2010    2010
+##  8 NJ        2015-10-13  2015-10-19 None           37.2             2015    2015
+##  9 PA        2017-02-21  2017-02-27 D0              6.6             2017    2017
+## 10 ND        2008-05-27  2008-06-02 D4              0               2008    2008
+## # … with abbreviated variable name ¹​valid_end_year</code></pre>
 <p>As before, I am using a tidy select function <code>starts_with</code> to target the columns I want to operate on and perform a lambda function on each. However, you can see that I skipped a renaming step by using the <code>.names</code> argument. The <code>.names</code> argument has the special <code>glue</code> syntax (read more <a href="https://github.com/tidyverse/glue">here</a>). In particular, this means we can use <code>{.col}</code> to input in the original column name.</p>
 <p>However, recall that I wanted 6 new columns, which would require me writing three separate <code>mutate</code> functions (or 3 big arguments passed into <code>mutate</code>) right? Nope! The <code>across</code> function’s <code>.fns</code> argument (which we passed our lambda function to) can actually take a list of functions. Observe:</p>
 <pre class="r"><code>drought %&gt;% 
   mutate(across(starts_with(&quot;valid&quot;), list(year = ~year(.), month = ~month(.), day = ~day(.)), .names = &quot;{.col}_{.fn}&quot;)) %&gt;% 
   select(starts_with(&quot;valid&quot;))</code></pre>
 <pre><code>## # A tibble: 10 × 8
-##    valid_start valid_end  valid_start_year valid_start_month valid_start_day
-##    &lt;date&gt;      &lt;date&gt;                &lt;dbl&gt;             &lt;dbl&gt;           &lt;int&gt;
-##  1 2004-06-22  2004-06-28             2004                 6              22
-##  2 2002-12-10  2002-12-16             2002                12              10
-##  3 2008-03-25  2008-03-31             2008                 3              25
-##  4 2010-05-11  2010-05-17             2010                 5              11
-##  5 2016-12-20  2016-12-26             2016                12              20
-##  6 2002-04-02  2002-04-08             2002                 4               2
-##  7 2003-12-23  2003-12-29             2003                12              23
-##  8 2019-04-23  2019-04-29             2019                 4              23
-##  9 2015-12-01  2015-12-07             2015                12               1
-## 10 2003-06-17  2003-06-23             2003                 6              17
-## # … with 3 more variables: valid_end_year &lt;dbl&gt;, valid_end_month &lt;dbl&gt;,
-## #   valid_end_day &lt;int&gt;</code></pre>
+##    valid_start valid_end  valid_start_…¹ valid…² valid…³ valid…⁴ valid…⁵ valid…⁶
+##    &lt;date&gt;      &lt;date&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;int&gt;
+##  1 2006-01-03  2006-01-09           2006       1       3    2006       1       9
+##  2 2018-05-29  2018-06-04           2018       5      29    2018       6       4
+##  3 2015-04-21  2015-04-27           2015       4      21    2015       4      27
+##  4 2020-03-10  2020-03-16           2020       3      10    2020       3      16
+##  5 2005-08-30  2005-09-05           2005       8      30    2005       9       5
+##  6 2002-04-02  2002-04-08           2002       4       2    2002       4       8
+##  7 2010-06-22  2010-06-28           2010       6      22    2010       6      28
+##  8 2015-10-13  2015-10-19           2015      10      13    2015      10      19
+##  9 2017-02-21  2017-02-27           2017       2      21    2017       2      27
+## 10 2008-05-27  2008-06-02           2008       5      27    2008       6       2
+## # … with abbreviated variable names ¹​valid_start_year, ²​valid_start_month,
+## #   ³​valid_start_day, ⁴​valid_end_year, ⁵​valid_end_month, ⁶​valid_end_day</code></pre>
 <p>Notice what happened here: I passed in a named list of lambda functions to be performed on each of the columns. In effect, I performed the <code>lubridate::year</code>, <code>lubridate::month</code>, and <code>lubridate::day</code> functions on the columns of interest and achieved the goal of creating 6 different columns all with 1 line of code. Additionally, I used the special<code>{.fn}</code> character in the <code>.names</code> argument to pass in the name of each of the functions to the new column names. Pretty incredible isn’t it?</p>
 </div>
 </div>
