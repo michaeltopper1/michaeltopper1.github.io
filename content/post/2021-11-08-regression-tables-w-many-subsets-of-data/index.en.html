@@ -33,7 +33,8 @@ editor_options:
 
 
 <p><em>Please turn the website to “light mode” to see the tables clearly! </em></p>
-<p><strong>Update (10/3/2022):</strong> The steps in this tutorial can be easily replicated with one simple function using my new package called <a href="https://michaeltopper1.github.io/panelsummary/index.html">Panelsummary</a>.</p>
+<p><strong>Update (10/3/2022):</strong> The steps in this tutorial can be easily replicated with one simple function using my new package called <a href="https://michaeltopper1.github.io/panelsummary/index.html">Panelsummary</a>. Please update to version 1.1 which will be available on CRAN shortly.</p>
+<p><strong>Update (2/15/2022)</strong> I have updated the steps in this tutorial to match the changes made in the new modelsummary 1.3. Please be sure to update to this version if you plan on following this tutorial!</p>
 <p>Oftentimes, it is preferable to create a regression table that has many subsets of your data set. For instance, in my own work on fraternities and crime, I find it necessary to show three sets of results: effects on in the full sample, effects on the weekends, and effects on the weekdays. Moreover, I believe a great way to present this data is with a <em>long</em> table rather than a <em>wide</em> table. In particular, this means having a table with grouped rows—one grouping for each subset of data. Usually, these tables can only be created with manual editing since no out-out-box function in R can handle such a task at the moment. However, the <code>modelsummary</code> package can actually achieve this with some small data manipulation with <code>dplyr</code>. For reference, below is a regression table I’ll demonstrate how to make:</p>
 <table class=" lightable-classic" style="font-family: Cambria; width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
 <caption>
@@ -79,7 +80,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.004)
@@ -117,7 +117,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.006)
@@ -155,7 +154,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.084)
@@ -284,29 +282,29 @@ high &lt;- list(high_mpg, high_mpg_2)</code></pre>
 <p>The next step is to pass these into the <code>modelsummary</code> function, but with a slight twist. In particular, we are going to use the <code>output = "data.frame"</code> argument to create a dataframe of our models. But first, I want to note that I am going to omit all of the goodness-of-fit statistics that <code>modelsummary</code> spits out except the number of observations. To do this, I am going to use the <code>gof_map</code> argument. Take a look at the <a href="https://vincentarelbundock.github.io/modelsummary/articles/modelsummary.html">modelsummary website</a> for how to use this, or you can check out this <a href="https://stackoverflow.com/questions/69420683/is-there-a-way-to-change-the-capitalization-in-modelsummary-for-fixed-effects-wi">stackoverflow conversation</a> for a minimal reproducible example since I will not go into details here. The main takeaway for these next few lines of code is this: I am creating “cleaned” versions of the goodness-of-fit statistics that I want- the first is for the first two lists of models (<code>low</code> and <code>mid</code>), while the second is for the last list of models (<code>high</code>). I do this because I want the table to only have fixed effects at the bottom of the table, yet I want to have the number of observations within the table.</p>
 <pre class="r"><code>## creating cleaned goodness-of-fit mappings for the low and mid models
 gm_first &lt;- tribble(~raw, ~clean, ~fmt,
-                      &quot;nobs&quot;, &quot;Num.Obs&quot;, ~fmt)
+                      &quot;nobs&quot;, &quot;Num.Obs&quot;, 0)
 
 ## creating cleaned goodness-of-fit mappings for the high models
 gm_last &lt;- tribble(~raw, ~clean, ~fmt,
-                      &quot;nobs&quot;, &quot;Num.Obs&quot;, ~fmt,
-                   &quot;FE: gear&quot;, &quot;FE: Gear&quot;, ~fmt,
-                   &quot;FE: am&quot;, &quot;FE: AM&quot;, ~fmt)</code></pre>
+                      &quot;nobs&quot;, &quot;Num.Obs&quot;, 0,
+                   &quot;FE: gear&quot;, &quot;FE: Gear&quot;, 0,
+                   &quot;FE: am&quot;, &quot;FE: AM&quot;, 0)</code></pre>
 <p>Next, I will pass in the <code>low</code>, <code>mid</code>, and <code>high</code> lists into modelsummary, and save the output as a dataframe.</p>
 <pre class="r"><code>## saving low models as a data frame - doing some additional presentation cleaning
 low_table &lt;- modelsummary(low, stars = T, 
              coef_map = c(&quot;hp&quot; = &quot;Horse Power&quot;), output = 
                &quot;data.frame&quot;,
              gof_map = gm_first)  %&gt;% 
-  mutate(term = ifelse(statistic == &quot;modelsummary_tmp2&quot;, &quot;&quot;, term)) %&gt;%
-  select(matches(&quot;term|^model&quot;))
+  mutate(term = ifelse(statistic == &quot;std.error&quot;, &quot;&quot;, term)) %&gt;%
+  select(matches(&quot;term|^\\(&quot;))
 
 ## saving mid models as a data frame - doing some additional presentation cleaning
 mid_table &lt;- modelsummary(mid, stars = T, 
              coef_map = c(&quot;hp&quot; = &quot;Horse Power&quot;), output = 
                &quot;data.frame&quot;,
              gof_map = gm_first)  %&gt;% 
-  mutate(term = ifelse(statistic == &quot;modelsummary_tmp2&quot;, &quot;&quot;, term)) %&gt;%
-  select(matches(&quot;term|^model&quot;))
+  mutate(term = ifelse(statistic == &quot;std.error&quot;, &quot;&quot;, term)) %&gt;%
+  select(matches(&quot;term|^\\(&quot;))
 
 ## saving high models as a data frame - doing some additional presentation cleaning
 ## BE AWARE I PASSED IN GM_SECOND to the GOF_MAP arugment here!!!!
@@ -314,8 +312,8 @@ high_table &lt;- modelsummary(high, stars = T,
              coef_map = c(&quot;hp&quot; = &quot;Horse Power&quot;), output = 
                &quot;data.frame&quot;,
              gof_map = gm_last)  %&gt;% 
-  mutate(term = ifelse(statistic == &quot;modelsummary_tmp2&quot;, &quot;&quot;, term)) %&gt;%
-  select(matches(&quot;term|^model&quot;))</code></pre>
+  mutate(term = ifelse(statistic == &quot;std.error&quot;, &quot;&quot;, term)) %&gt;%
+  select(matches(&quot;term|^\\(&quot;))</code></pre>
 <p>This created 3 separate dataframes with the information we want. Note that I used the <code>gm_last</code> for the final <code>high_table</code> dataframe. Now, let’s append these dataframes together. WARNING: Please be advised that the order *does** matter here since we want the fixed effects to be displayed last!!</p>
 <pre class="r"><code>## binding together the rows - order matters!!
 table &lt;- bind_rows(low_table, mid_table, high_table)</code></pre>
@@ -379,7 +377,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.004)
@@ -417,7 +414,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.006)
@@ -455,7 +451,6 @@ Horse Power
 </tr>
 <tr>
 <td style="text-align:left;padding-left: 2em;" indentlevel="1">
-Horse Power
 </td>
 <td style="text-align:left;">
 (0.084)

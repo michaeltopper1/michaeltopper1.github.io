@@ -29,7 +29,9 @@ editor_options:
 ---
 *Please turn the website to "light mode" to see the tables clearly! *
 
-**Update (10/3/2022):** The steps in this tutorial can be easily replicated with one simple function using my new package called [Panelsummary](https://michaeltopper1.github.io/panelsummary/index.html). 
+**Update (10/3/2022):** The steps in this tutorial can be easily replicated with one simple function using my new package called [Panelsummary](https://michaeltopper1.github.io/panelsummary/index.html). Please update to version 1.1 which will be available on CRAN shortly. 
+
+**Update (2/15/2022)** I have updated the steps in this tutorial to match the changes made in the new modelsummary 1.3. Please be sure to update to this version if you plan on following this tutorial!
 
 
 Oftentimes, it is preferable to create a regression table that has many subsets of your data set. For instance, in my own work on fraternities and crime, I find it necessary to show three sets of results: effects on in the full sample, effects on the weekends, and effects on the weekdays. Moreover, I believe a great way to present this data is with a *long* table rather than a *wide* table. In particular, this means having a table with grouped rows—one grouping for each subset of data. Usually, these tables can only be created with manual editing since no out-out-box function in R can handle such a task at the moment. However, the `modelsummary` package can actually achieve this with some small data manipulation with `dplyr`. For reference, below is a regression table I'll demonstrate how to make:
@@ -73,32 +75,32 @@ high <- list(high_mpg, high_mpg_2)
 
 
 gm_first <- tribble(~raw, ~clean, ~fmt,
-                      "nobs", "Num.Obs", ~fmt)
+                      "nobs", "Num.Obs", 0)
 
 gm_last <- tribble(~raw, ~clean, ~fmt,
-                      "nobs", "Num.Obs", ~fmt,
-                   "FE: gear", "FE: Gear", ~fmt,
-                   "FE: am", "FE: AM", ~fmt)
+                      "nobs", "Num.Obs", 0,
+                   "FE: gear", "FE: Gear", 0,
+                   "FE: am", "FE: AM", 0)
 low_table <- modelsummary(low, stars = T, 
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_first)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 
 mid_table <- modelsummary(mid, stars = T, 
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_first)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 
 high_table <- modelsummary(high, stars = T, 
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_last)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 
 table <- bind_rows(low_table, mid_table, high_table)
 
@@ -200,13 +202,13 @@ The next step is to pass these into the `modelsummary` function, but with a slig
 ```{r}
 ## creating cleaned goodness-of-fit mappings for the low and mid models
 gm_first <- tribble(~raw, ~clean, ~fmt,
-                      "nobs", "Num.Obs", ~fmt)
+                      "nobs", "Num.Obs", 0)
 
 ## creating cleaned goodness-of-fit mappings for the high models
 gm_last <- tribble(~raw, ~clean, ~fmt,
-                      "nobs", "Num.Obs", ~fmt,
-                   "FE: gear", "FE: Gear", ~fmt,
-                   "FE: am", "FE: AM", ~fmt)
+                      "nobs", "Num.Obs", 0,
+                   "FE: gear", "FE: Gear", 0,
+                   "FE: am", "FE: AM", 0)
 ```
 
 Next, I will pass in the `low`, `mid`, and `high` lists into modelsummary, and save the output as a dataframe.
@@ -217,16 +219,16 @@ low_table <- modelsummary(low, stars = T,
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_first)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 
 ## saving mid models as a data frame - doing some additional presentation cleaning
 mid_table <- modelsummary(mid, stars = T, 
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_first)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 
 ## saving high models as a data frame - doing some additional presentation cleaning
 ## BE AWARE I PASSED IN GM_SECOND to the GOF_MAP arugment here!!!!
@@ -234,8 +236,8 @@ high_table <- modelsummary(high, stars = T,
              coef_map = c("hp" = "Horse Power"), output = 
                "data.frame",
              gof_map = gm_last)  %>% 
-  mutate(term = ifelse(statistic == "modelsummary_tmp2", "", term)) %>%
-  select(matches("term|^model"))
+  mutate(term = ifelse(statistic == "std.error", "", term)) %>%
+  select(matches("term|^\\("))
 ```
 
 This created 3 separate dataframes with the information we want. Note that I used the `gm_last` for the final `high_table` dataframe. Now, let's append these dataframes together. WARNING: Please be advised that the order *does** matter here since we want the fixed effects to be displayed last!!
