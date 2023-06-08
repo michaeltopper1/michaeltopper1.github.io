@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Software
 ***
-I have recently created a table-making package called [Panelsummary](https://michaeltopper1.github.io/panelsummary/index.html) which allows for making beautiful regression tables with multiple panels. It is currently in beta-testing stages, but I am hopeful it will be released to CRAN shortly. 
+I have recently created a table-making package called [Panelsummary](https://michaeltopper1.github.io/panelsummary/index.html) which allows for making beautiful regression tables with multiple panels. The package is catered towards economics researchers.
 
 
 ## Data Wrangling Assignments  
@@ -33,41 +33,3 @@ These assignments would not be what they are without the excellent feedback and 
 * [Regular Expressions and Scraping PDFs](2021_f_hw6_prompt_v1.pdf)
 
 If you would like more materials please contact me—I am happy to share the many materials I have made over the past few years.
-
-## Learning R
-***
-<br>
-These are my favorite resources for learning R.
-
--   [R for Data Science](https://r4ds.had.co.nz/) : Hadley Wickham & Garret Grolemund's invaluable text. This is the best place to learn R. I recently discovered that reading chapters of material I *thought* I had an exceptional grasp on provided me with workflow and best practice tips. I cannot recommend this book enough. Read it cover to cover and bookmark it in your favorite web-browser.
-
--   [Grant McDermott's Data Science for Economists Lecture Notes](https://github.com/uo-ec607/lectures): These are quite simply the best online notes on data science for economists I have ever seen. Unsure what an API is? Wondering how to [correct your standard errors](https://grantmcdermott.com/better-way-adjust-SEs/)? Grant's lecture notes (and blog) have it all, with code, free to access.
-
--   [David Robinson's YouTube Channel](https://www.youtube.com/channel/UCeiiqmVK07qhY-wvg3IZiZQ): Every week, David Robinson (author of the `broom` and `tidytext` packages) takes a new data set, and livestreams himself analyzing it. This is an exceptionally good resource for getting comfortable with the `ggplot2` syntax and learning what graphs work with which data. Plus, it's entertaining!
-
-
--   [R for STATA Users](https://www.matthieugomez.com/statar/manipulate-data.html): This provides translations of common code from R to STATA and vice-versa.
-
-Disclaimer: this next recommendation was written by myself and a colleague.
-
-- [Guided Exercises for Econ 145/245](https://michaeltopper1.github.io/data-wrangling-econ-book/): Over the past two years, I have been tasked with creating original course material for the Econ 145 and Econ 245 Data Wrangling for Economists courses at UCSB that use R. I wrote up a lot of material on how to learn R from scratch with [Danny Klinenberg](https://sites.google.com/view/dannyklinenberg/home), in addition to other helpful methods for conducting research and threw it into a textbook format. While this is still very much a work in progress, I believe it has more explanation than most typical texts and covers bits of important information that are often hidden from course curriculum (file organization, Rmarkdown, Git/Github). You can click the link here or click on the "R Book" tab at the top of the web page!
-
-<br>
-
-## Tools for Data Collection and Literature Reviews
-***
-<br>
-
-### Zotero
-
-This is, in my opinion, the best and most efficient method of tracking journal articles for literature reviews. It is completely free and has an incredible Chrome extension for quickly saving journal articles/web pages into a folder. As a bonus, it can easily create bibtex files with a click of the button and it integrates with RStudio's new Rmarkdown interactive editor. [Learn more here.](https://www.zotero.org/)
-
-### Freedom of Information Act
-
-The Freedom of Information Act is an excellent resource for getting data. It states that federal institutions are required to give you documents that exist (with some exceptions) within a certain amount of time. I have frequently used this method to receive police department data. Here are some of my favorite resources to get you started with using this tool:
-
--   [Muckrock](https://www.muckrock.com/): a non-profit news site that provides a repository of thousands of pages of FOIA'd information. See what documents/data researchers and journalists are currently seeking. Furthermore, you can file requests in states that refuse to answer out-of-state residents (for instance, a Californian requesting data from Arkansas) for a very small and reasonable fee ($5). This tool has been a life-saver in my research - I hope it helps you too!
-
--   [National Freedom of Information Coalition Sample FOIA Letters](https://www.nfoic.org/state-sample-foia-request-letters/): templates for FOIA requests. Since FOIA laws vary by state, this is a particularly useful resource when your analysis requires you to gather data from multiple states.
-
-

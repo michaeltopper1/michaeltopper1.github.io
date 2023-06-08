@@ -43,7 +43,7 @@ superuser: true
 title: Michael Topper
 ---
 
-I am a 5th-year PhD candidate at the University of California, Santa Barbara in the economics department. My research focuses on the economics of crime. 
+I am a 5th-year PhD candidate at the University of California, Santa Barbara in the economics department. I will be on the job market for the 2023-2024 academic year. My research focuses on the economics of crime. 
 
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "media/CV_Michael_Topper.pdf" "newtab" >}}CV{{< /staticref >}}.
