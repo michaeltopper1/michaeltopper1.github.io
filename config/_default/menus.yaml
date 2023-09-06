@@ -18,6 +18,6 @@ main:
     weight: 50
   - name: Panelsummary 
     url: 'https://michaeltopper1.github.io/panelsummary/index.html'
-  - name: R Book
+  - name: Textbook
     url: 'https://michaeltopper1.github.io/data-wrangling-econ-book'
 
