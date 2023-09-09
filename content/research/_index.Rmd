@@ -21,15 +21,20 @@ knitr::opts_chunk$set(echo = TRUE)
 *Abstract*: 
 I exploit variation in timing from 44 temporary university-wide halts on all fraternity activity with alcohol (*moratoriums*) across 37 universities over 2014-2019. I construct a novel data set, merging incident-level crime logs from university police departments to provide the first causal estimates of the effect of moratoriums on reports of alcohol offenses and sexual assaults. In particular, I find robust evidence that moratoriums decrease alcohol offenses by 26%. Additionally, I find suggestive evidence that moratoriums decrease reports of sexual assault on the weekends by 29%. However, I do not find evidence of long-term changes once the moratorium is lifted.
 
-## Works in Progress
+## Working Papers
 ***
 
 ### The Effect of ShotSpotter Technology on Police Response Times (with Toshio Ferrazares)
 
-*Stay Tuned for Updates*
+**Job Market Paper**
+
+*Abstract:*
+ShotSpotter is an acoustic gunfire detection technology utilized by police departments in over 150 cities world-wide with the intention of rapidly dispatching police officers to violent crime scenes in effort to reduce gun violence. In Chicago, this amounts to approximately 60 instances per-day whereby officers are rapidly dispatched to hypothesized sounds of gunfire. However, this allocation diverts police resources away from confirmed reports of 911 emergencies, creating delays in rapid response—a critical component of policing with health and safety implications. In this paper, we utilize variation in timing from ShotSpotter rollouts across Chicago police districts from 2016-2022 to estimate the causal effects of ShotSpotter on 911 emergency response times that are designated as Priority 1 (immediate dispatch). Using comprehensive 911 dispatch data from the Chicago Police Department, we find that ShotSpotter implementation causes police officers to be dispatched one-minute slower (23\% increase) and arrive on-scene nearly two-minutes later (13\% increase). Moreover, these effects are driven by periods with fewer police on-duty and higher numbers of ShotSpotter-related dispatches. Consequently, police officers' success rate in arresting perpetrators decreases by approximately 8\% when responding to emergency calls, with notably large decreases in domestic battery (15\%). However, we also find suggestive evidence that ShotSpotter decreases the probability of a victim injury, particularly for gun-related reports, thereby indicating success in achieving its primary goal, albeit at a significant cost.
+
+## Works in Progress
 
 
-### Police Shift Changes and Use-of-Force (with Toshio Ferrazares)
+### Police Shift Changes and Use-of-Force 
 
 *Stay Tuned for Updates*
 
