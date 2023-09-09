@@ -1,5 +1,4 @@
 ---
 title: "Curriculum Vitae"
 ---
-{{< iframe src="/media/CV_Michael_Topper.pdf" width="100%" height="800px" >}}
-
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "media/CV_Michael_Topper.pdf" "newtab" >}}CV{{< /staticref >}}.
