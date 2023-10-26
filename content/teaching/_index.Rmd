@@ -7,9 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-Read my [Teaching Statement](teaching_statement.pdf).
-
 ## Instructor of Record
 ***
 * Economics 102 - Introductory Microeconomics *(San Diego State University)*
@@ -40,6 +37,10 @@ Read my [Teaching Statement](teaching_statement.pdf).
 
 * UCSB Economics Department Teaching Award: **University of California, Santa Barbara**
     - Awarded for Fall 2021 (Data Wrangling for Economics)
+
+## Teaching Statement
+***
+Read my [teaching statement](teaching_statement.pdf).
 
 ## Letters of Recommendation from Students
 ***
