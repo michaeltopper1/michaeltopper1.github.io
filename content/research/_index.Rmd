@@ -24,14 +24,14 @@ I exploit variation in timing from 44 temporary university-wide halts on all fra
 ## Working Papers
 ***
 
-### The Effect of ShotSpotter Technology on Police Response Times (with Toshio Ferrazares)
+### The Unintended Consequences of Policing Technology: Evidence from ShotSpotter (with Toshio Ferrazares)
 
-**Job Market Paper**
+**Previously circulated as The Effect of ShotSpotter Technology on Police Response Times**
 
 **Download the most recent version of the paper [here](jmp_michael_topper.pdf).**
 
 *Abstract:*
-ShotSpotter is an acoustic gunfire detection technology utilized by police departments in over 150 cities world-wide with the intention of rapidly dispatching police officers to violent crime scenes in an effort to reduce gun violence. In Chicago, this amounts to approximately 70 instances per-day whereby officers are immediately dispatched to hypothesized sounds of gunfire. However, this allocation diverts police resources away from confirmed reports of 911 emergencies, creating delays in rapid response—a critical component of policing with health and safety implications. In this paper, we utilize variation in timing from ShotSpotter rollouts across Chicago police districts from 2016-2022 to estimate the causal effects of ShotSpotter on 911 emergency response times that are designated as Priority 1 (immediate dispatch). Using comprehensive 911 dispatch data from the Chicago Police Department, we find that ShotSpotter implementation causes police officers to be dispatched one-minute slower (23\% increase) and arrive on-scene nearly two-minutes later (13\% increase). Moreover, these effects are driven by periods with fewer police on-duty and times of day with larger numbers of ShotSpotter-related dispatches. Consequently, when responding to emergency calls, police officers' success rate in arresting perpetrators decreases by approximately 9\%, with notably large decreases in arrests for domestic battery (14\%). 
+Technology is integral to police departments, automating officer tasks, but inherently changing their time allocation. We investigate this by studying ShotSpotter, a technology that automates gunfire detection. Following a detection, officers are dispatched to the scene, thereby reallocating their time. We leverage this shock to officers’ time allocation using the rollout of ShotSpotter across Chicago police districts to study the effects on 911 call response. We find substantial consequences---officers are dispatched to calls slower (23%), arrive on-scene later (13%), and the probability of arrest is decreased 9%. Consequently, police departments must evaluate their resource capacities prior to implementing technologies.
 
 ## Works in Progress
 
