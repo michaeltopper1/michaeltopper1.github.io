@@ -2,9 +2,9 @@
 bio: Economics Student UCSB
 education:
   courses:
-  - course: PhD Student in Economics
+  - course: PhD in Economics
     institution: University of California, Santa Barbara
-    year: 
+    year: 2024
   - course: MA in Economics
     institution: San Diego State University
     year: 2018
@@ -43,7 +43,7 @@ superuser: true
 title: Michael Topper
 ---
 
-I am a PhD candidate at the University of California, Santa Barbara in the economics department. I will be on the job market for the 2023-2024 academic year. My research focuses on the economics of crime.
+I am a SSRC Criminal Justice Innovation Postdoctoral Fellow. My research focuses on the economics of crime.
 
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "media/jmp_michael_topper.pdf" "newtab" >}}Job Market Paper{{< /staticref >}}.

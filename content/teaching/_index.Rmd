@@ -21,6 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Economics 1 - Introductory Microeconomics *(University of California, Santa Barbara)*
 * Economics 2 - Introductory Macroeconomics *(University of California, Santa Barbara)*
 * Economics 10A - Intermediate Microeconomic Theory *(University of California, Santa Barbara)*
+* Economics 130 - Public Finance *(University of California, Santa Barbara)*
 * INT 93LS- Introduction to Research in STEM, Humanities, and Social Sciences *(University of California, Santa Barbara)*
 * Econonmics 102 - Introductory Microeconomics *(San Diego State University)*
 * Econonmics 441 - Introduction to Econometrics *(San Diego State University)*
