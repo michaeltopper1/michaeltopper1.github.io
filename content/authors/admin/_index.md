@@ -20,9 +20,9 @@ interests:
 - Data Science
 - Open-source Software
 organizations:
-- name: UCSB
-  url: https://www.econ.ucsb.edu/
-role: PhD Candidate in Economics
+- name: SSRC Criminal Justice Innovation Postdoctoral Fellow
+  url: https://www.ssrc.org/programs/arnold-ventures-criminal-justice-innovation-fellowships/fellows/
+role: PhD in Economics
 social:
 - icon: envelope
   icon_pack: fas
