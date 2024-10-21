@@ -33,7 +33,10 @@ I exploit variation in timing from 44 temporary university-wide halts on all fra
 *Abstract:*
 Technology is integral to police departments, automating officer tasks, but inherently changing their time allocation. We investigate this by studying ShotSpotter, a technology that automates gunfire detection. Following a detection, officers are dispatched to the scene, thereby reallocating their time. We leverage this shock to officers’ time allocation using the rollout of ShotSpotter across Chicago police districts to study the effects on 911 call response. We find substantial consequences---officers are dispatched to calls slower (23%), arrive on-scene later (13%), and the probability of arrest is decreased 9%. Consequently, police departments must evaluate their resource capacities prior to implementing technologies.
 
-*In the Press:* [The Economist](https://www.economist.com/united-states/2023/12/27/americas-new-policing-tech-isnt-cutting-crime?giftId=77056dba-6af1-40be-af4c-0f6e5baf028b), [The Chicago Tribune](https://www.chicagotribune.com/2024/03/03/with-shotspotter-staying-in-chicago-for-the-time-being-dispute-continues-over-the-systems-usefulness/),   [Stateline](https://stateline.org/2024/02/27/chicago-is-the-latest-city-rethinking-disputed-technology-that-listens-for-gunshots/)
+*In the Press:* [The Economist](https://www.economist.com/united-states/2023/12/27/americas-new-policing-tech-isnt-cutting-crime?giftId=77056dba-6af1-40be-af4c-0f6e5baf028b), [The Chicago Tribune](https://www.chicagotribune.com/2024/03/03/with-shotspotter-staying-in-chicago-for-the-time-being-dispute-continues-over-the-systems-usefulness/),   [Stateline](https://stateline.org/2024/02/27/chicago-is-the-latest-city-rethinking-disputed-technology-that-listens-for-gunshots/),
+[NPR](https://www.npr.org/2024/10/20/nx-s1-5131546/researchers-are-skeptical-of-this-gunfire-detection-system-chicago-no-longer-uses-it),
+[WBEZ Chicago](https://www.wbez.org/2024/09/18/research-finds-shotspotter-slows-police-responses-to-911-calls), [Block Club Chicago](https://blockclubchicago.org/2024/10/08/south-side-officials-raise-2-5-million-in-effort-to-keep-shotspotter-in-chicago/)
+
 
 ## Works in Progress
 
@@ -45,6 +48,23 @@ Gun violence is ubiquitous across the United States, with gun-related deaths rea
 
 *Stay Tuned for Updates*
 
+### Reduce Barriers, Increase Diversity, and Maintain Quality
 
+*Stay Tuned for Updates*
 
+### Hiring in the Presence of Disapproval
+
+*Stay Tuned for Updates*
+
+### Untitled Project on Police Training
+
+*Stay Tuned for Updates*
+
+### Untitled Detective Project (with CarlyWill Sloan and Matt Ross)
+
+*Stay Tuned for Updates*
+
+### Untitled ShotSpotter Validation Project (with Taylor Wright)
+
+*Stay Tuned for Updates*
 

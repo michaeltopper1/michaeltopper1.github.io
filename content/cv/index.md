@@ -1,4 +1,4 @@
 ---
 title: "Curriculum Vitae"
 ---
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "media/CV_Michael_Topper.pdf" "newtab" >}}CV{{< /staticref >}}.
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "media/cv_Michael_Topper.pdf" "newtab" >}}CV{{< /staticref >}}.
