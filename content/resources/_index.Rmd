@@ -33,3 +33,7 @@ These assignments would not be what they are without the excellent feedback and 
 * [Regular Expressions and Scraping PDFs](2021_f_hw6_prompt_v1.pdf)
 
 If you would like more materials please contact me—I am happy to share the many materials I have made over the past few years.
+
+## Presentation for AV
+
+<a href="/av_tech.html" target="_blank">View Slides</a>
