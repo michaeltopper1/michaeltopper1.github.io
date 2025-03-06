@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 * Economics 102 - Introductory Microeconomics *(San Diego State University)*
   + See how students evaluated my course on [ratemyprofessors](https://www.ratemyprofessors.com/ShowRatings.jsp?tid=2280144).
 * Econ 199RA - Data Hack 2022 *(University of California, Santa Barbara)*
+* Economics 101 - Introductory Microeconomics *(Santa Barbara City College)*
+* Economics 102 - Introductory Macroeconomics *(Santa Barbara City College)*
 
 ## Teaching Assistant
 ***

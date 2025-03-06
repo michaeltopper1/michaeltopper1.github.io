@@ -30,6 +30,8 @@ I exploit variation in timing from 44 temporary university-wide halts on all fra
 
 **Download the most recent version of the paper [here](jmp_michael_topper.pdf).**
 
+**Revise and Resubmit**: *Journal of Human Resources*
+
 *Abstract:*
 Technology is integral to police departments, automating officer tasks, but inherently changing their time allocation. We investigate this by studying ShotSpotter, a technology that automates gunfire detection. Following a detection, officers are dispatched to the scene, thereby reallocating their time. We leverage this shock to officers’ time allocation using the rollout of ShotSpotter across Chicago police districts to study the effects on 911 call response. We find substantial consequences---officers are dispatched to calls slower (23%), arrive on-scene later (13%), and the probability of arrest is decreased 9%. Consequently, police departments must evaluate their resource capacities prior to implementing technologies.
 

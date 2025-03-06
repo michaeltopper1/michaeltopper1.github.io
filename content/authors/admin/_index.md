@@ -43,7 +43,7 @@ superuser: true
 title: Michael Topper
 ---
 
-I am a SSRC Criminal Justice Innovation Postdoctoral Fellow. My research focuses on the economics of crime.
+I am a SSRC Criminal Justice Innovation Postdoctoral Fellow. My research focuses on the economics of crime. In Fall of 2025, I will be joining Cal Poly Pomona as an Assistant Professor of Economics. 
 
 
 {{< icon name="download" pack="fas" >}} Download my {{< staticref "media/jmp_michael_topper.pdf" "newtab" >}}Job Market Paper{{< /staticref >}}.
