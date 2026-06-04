@@ -11,7 +11,7 @@ education:
   - course: Joint BS Mathematics/Economics
     institution: University of California, San Diego
     year: 2015
-email: "michaeltopper@ucsb.edu"
+email: "mtopper@cpp.edu"
 highlight_name: false
 interests:
 - Economics of Crime
@@ -20,8 +20,8 @@ interests:
 - Data Science
 - Open-source Software
 organizations:
-- name: SSRC Criminal Justice Innovation Postdoctoral Fellow
-  url: https://www.ssrc.org/programs/arnold-ventures-criminal-justice-innovation-fellowships/fellows/
+- name: California Polytechnic State University, Pomona
+  url: https://www.cpp.edu/
 role: PhD in Economics
 social:
 - icon: envelope
@@ -43,7 +43,6 @@ superuser: true
 title: Michael Topper
 ---
 
-I am a SSRC Criminal Justice Innovation Postdoctoral Fellow. My research focuses on the economics of crime. In Fall of 2025, I will be joining Cal Poly Pomona as an Assistant Professor of Economics. 
+I am an Assistant Professor of Economics at California Polytechnic State University, Pomona. My research focuses on the economics of crime.
 
 
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "media/jmp_michael_topper.pdf" "newtab" >}}Job Market Paper{{< /staticref >}}.

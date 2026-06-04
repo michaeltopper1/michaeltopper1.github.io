@@ -16,21 +16,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Journal link [here](https://jhr.uwpress.org/content/early/2023/05/01/jhr.0722-12422R1).**
 
-**Forthcoming**: *Journal of Human Resources*
+*Journal of Human Resources*
 
 *Abstract*: 
 I exploit variation in timing from 44 temporary university-wide halts on all fraternity activity with alcohol (*moratoriums*) across 37 universities over 2014-2019. I construct a novel data set, merging incident-level crime logs from university police departments to provide the first causal estimates of the effect of moratoriums on reports of alcohol offenses and sexual assaults. In particular, I find robust evidence that moratoriums decrease alcohol offenses by 26%. Additionally, I find suggestive evidence that moratoriums decrease reports of sexual assault on the weekends by 29%. However, I do not find evidence of long-term changes once the moratorium is lifted.
 
-## Working Papers
-***
 
 ### The Unintended Consequences of Policing Technology: Evidence from ShotSpotter (with Toshio Ferrazares)
 
 **Previously circulated as The Effect of ShotSpotter Technology on Police Response Times**
 
-**Download the most recent version of the paper [here](jmp_michael_topper.pdf).**
-
-**Revise and Resubmit**: *Journal of Human Resources*
+**Accepted**: *Journal of Human Resources*
 
 *Abstract:*
 Technology is integral to police departments, automating officer tasks, but inherently changing their time allocation. We investigate this by studying ShotSpotter, a technology that automates gunfire detection. Following a detection, officers are dispatched to the scene, thereby reallocating their time. We leverage this shock to officers’ time allocation using the rollout of ShotSpotter across Chicago police districts to study the effects on 911 call response. We find substantial consequences---officers are dispatched to calls slower (23%), arrive on-scene later (13%), and the probability of arrest is decreased 9%. Consequently, police departments must evaluate their resource capacities prior to implementing technologies.
@@ -40,13 +36,18 @@ Technology is integral to police departments, automating officer tasks, but inhe
 [WBEZ Chicago](https://www.wbez.org/2024/09/18/research-finds-shotspotter-slows-police-responses-to-911-calls), [Block Club Chicago](https://blockclubchicago.org/2024/10/08/south-side-officials-raise-2-5-million-in-effort-to-keep-shotspotter-in-chicago/)
 
 
+
 ## Works in Progress
+
+### Police Efficiency and Discretion: Learn-by-Doing
+
+I leverage the quasi-random variation of police officer exposure to different policing duties during their field training to understand how on-the-job training can affect worker efficiency and discretion in a high-stakes environment. Using a novel dataset combining every dispatch from Chicago over a 5-year period with each officer's training information, I find that police officers who receive high exposure to specific tasks during training perform these tasks faster (2%), and make fewer arrests (4%) in their first year post-training. These results are driven by low-priority incidents, and the effects persist throughout an officer's first year post-training in the field. Taken together, these findings imply that scarce officer resources can potentially be mitigated by increased on-the-job training.
 
 ### Gunshot Noise and Birth Outcomes (with Anna Jaskiewicz)
 
 Gun violence is ubiquitous across the United States, with gun-related deaths reaching an all-time high in 2021. The prevalence of gunfire results in loud and potentially stress-inducing sounds, which may adversely affect critical stages of in-utero development. However, gunfire is largely unreported, creating a unique challenge for researchers to understand its consequences. In this paper, we mitigate this shortcoming by leveraging data from ShotSpotter—an acoustic gunshot technology which uses an array of sensors placed on city structures to detect the sound of gunfire. We combine this unique data source with the universe of births in San Francisco over a four-year period (2016-2020), each matched to a mother's residence. Using the variation in gunfire detections from ShotSpotter at the census-block level, we employ a difference-in-differences methodology and find that gunshot noise creates substantial decreases in gestation lengths, resulting in an increase in preterm deliveries. These effects are driven entirely by times of the day when civilians are awake, and are particularly concentrated among mothers with low levels of education. These results suggest that gunshot noise is a major factor contributing to the income inequities in pregnancy outcomes.
 
-### Police Shift Changes and Use-of-Force 
+### Police Shift Changes and Use-of-Force (with Toshio Ferrazares)
 
 *Stay Tuned for Updates*
 
@@ -54,17 +55,10 @@ Gun violence is ubiquitous across the United States, with gun-related deaths rea
 
 *Stay Tuned for Updates*
 
-### Hiring in the Presence of Disapproval
+### The Stock and Flows of Police Hiring (with Toshio Ferrazares)
 
-*Stay Tuned for Updates*
+*Draft Coming Soon*
 
-### Untitled Project on Police Training
-
-*Stay Tuned for Updates*
-
-### Untitled Detective Project (with CarlyWill Sloan and Matt Ross)
-
-*Stay Tuned for Updates*
 
 ### Untitled ShotSpotter Validation Project (with Taylor Wright)
 
