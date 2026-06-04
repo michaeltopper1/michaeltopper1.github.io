@@ -20,7 +20,7 @@ interests:
 - Data Science
 - Open-source Software
 organizations:
-- name: California Polytechnic State University, Pomona
+- name: California State Polytechnic University, Pomona
   url: https://www.cpp.edu/
 role: PhD in Economics
 social:
@@ -43,6 +43,6 @@ superuser: true
 title: Michael Topper
 ---
 
-I am an Assistant Professor of Economics at California Polytechnic State University, Pomona. My research focuses on the economics of crime.
+I am an Assistant Professor of Economics at California State Polytechnic University, Pomona. My research focuses on the economics of crime.
 
 
