@@ -26,7 +26,7 @@ I exploit variation in timing from 44 temporary university-wide halts on all fra
 
 **Previously circulated as The Effect of ShotSpotter Technology on Police Response Times**
 
-**Accepted**: *Journal of Human Resources*
+**Forthcoming**: *Journal of Human Resources*
 
 *Abstract:*
 Technology is integral to police departments, automating officer tasks, but inherently changing their time allocation. We investigate this by studying ShotSpotter, a technology that automates gunfire detection. Following a detection, officers are dispatched to the scene, thereby reallocating their time. We leverage this shock to officers’ time allocation using the rollout of ShotSpotter across Chicago police districts to study the effects on 911 call response. We find substantial consequences---officers are dispatched to calls slower (23%), arrive on-scene later (13%), and the probability of arrest is decreased 9%. Consequently, police departments must evaluate their resource capacities prior to implementing technologies.
@@ -40,8 +40,9 @@ Technology is integral to police departments, automating officer tasks, but inhe
 ## Works in Progress
 
 ### Police Efficiency and Discretion: Learn-by-Doing
+**Draft available upon request**
 
-I leverage the quasi-random variation of police officer exposure to different policing duties during their field training to understand how on-the-job training can affect worker efficiency and discretion in a high-stakes environment. Using a novel dataset combining every dispatch from Chicago over a 5-year period with each officer's training information, I find that police officers who receive high exposure to specific tasks during training perform these tasks faster (2%), and make fewer arrests (4%) in their first year post-training. These results are driven by low-priority incidents, and the effects persist throughout an officer's first year post-training in the field. Taken together, these findings imply that scarce officer resources can potentially be mitigated by increased on-the-job training.
+I leverage the quasi-random variation in police officers' exposure to field training tasks to examine how the allocation of training experiences affects worker efficiency and discretion. Using a novel dataset linking Chicago Police Department dispatches with officers' field training records, I find that officers who receive high task-specific training exposure complete similar assignments faster (~2%) and make fewer arrests (~3.3%) in their first year on the job. These effects are driven by routine, low-priority incidents, persist over time, and differ across skills. Together, these findings suggest that organizational performance can be improved with a reallocation of existing on-the-job training.
 
 ### Gunshot Noise and Birth Outcomes (with Anna Jaskiewicz)
 
